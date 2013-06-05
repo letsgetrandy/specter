@@ -1,5 +1,5 @@
-PhantomCSS
-==========
+inSpectre
+=========
 
 *CSS regression testing*. An integration of [Resemble.js](http://huddle.github.com/Resemble.js/) with [PhantomJS](http://github.com/ariya/phantomjs/) and [CasperJS](http://github.com/n1k0/casperjs) for automating visual regression testing of Website styling to support refactoring of CSS.
 
@@ -22,10 +22,10 @@ Check out the [demo](http://github.com/Huddle/PhantomCSS/tree/master/demo) for a
 var css = require('./modules/phantomcss.js');
 
 css.init({
-	libraryRoot: './modules/PhantomCSS',
-	screenshotRoot: './screenshots',
-	failedComparisonsRoot: './failures',
-	testRunnerUrl: 'http://my.blank.page.html', //  needs to be a 'http' domain for the HTML5 magic to work
+    libraryRoot: './modules/PhantomCSS',
+    screenshotRoot: './screenshots',
+    failedComparisonsRoot: './failures',
+    testRunnerUrl: 'http://my.blank.page.html', //  needs to be a 'http' domain for the HTML5 magic to work
 });
 
 css.screenshot("#CSS .selector"/*, delay: 500, selector: '.elements-to-be-hidden', filename: 'my_webapp_feature'*/);
@@ -48,32 +48,32 @@ css.compareAll();
 ```javascript
 
 css.init({
-	libraryRoot: './modules/PhantomCSS',
-	screenshotRoot: './screenshots',
-	failedComparisonsRoot: './failures',
-	testRunnerUrl: 'http://my.blank.page.html',
+    libraryRoot: './modules/PhantomCSS',
+    screenshotRoot: './screenshots',
+    failedComparisonsRoot: './failures',
+    testRunnerUrl: 'http://my.blank.page.html',
 
-	onFail: function(test){ console.log(test.filename, test.mismatch); },
-	onPass: function(){ console.log(test.filename); },
-	onTimeout: function(){ console.log(test.filename); },
-	onComplete: function(allTests, noOfFails, noOfErrors){
-		allTests.forEach(function(test){
-			if(test.fail){
-				console.log(test.filename, test.mismatch);
-			}
-		});
-	},
-	fileNameGetter: function(root,filename){ 
-		// globally override output filename
-		// files must exist under root
-		// and use the .diff convention
-		var name = root+'/somewhere/'+filename;
-		if(fs.isFile(name+'.png')){
-			return name+'.diff.png';
-		} else {
-			return name+'.png';
-		}
-	}
+    onFail: function(test){ console.log(test.filename, test.mismatch); },
+    onPass: function(){ console.log(test.filename); },
+    onTimeout: function(){ console.log(test.filename); },
+    onComplete: function(allTests, noOfFails, noOfErrors){
+        allTests.forEach(function(test){
+            if(test.fail){
+                console.log(test.filename, test.mismatch);
+            }
+        });
+    },
+    fileNameGetter: function(root,filename){
+        // globally override output filename
+        // files must exist under root
+        // and use the .diff convention
+        var name = root+'/somewhere/'+filename;
+        if(fs.isFile(name+'.png')){
+            return name+'.diff.png';
+        } else {
+            return name+'.png';
+        }
+    }
 });
 
 css.turnOffAnimations(); // turn off CSS transitions and jQuery animations
@@ -82,4 +82,5 @@ css.turnOffAnimations(); // turn off CSS transitions and jQuery animations
 
 --------------------------------------
 
-Created by [James Cryer](http://github.com/jamescryer) and the Huddle development team.
+Maintained by [Randy Hunt](http://github.com/letsgetrandy)
+Based on PhantomCSS, originally created by [James Cryer](http://github.com/jamescryer) and the Huddle development team.
