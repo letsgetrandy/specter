@@ -14,12 +14,16 @@ var _emptyPageToRunTestsOn;
 var _libraryRoot = '.';
 var exitStatus;
 var _hideElements;
+var _testdir;
+var _prefix;
 
 exports.screenshot = screenshot;
 exports.compareAll = compareAll;
 exports.init = init;
 exports.turnOffAnimations = turnOffAnimations;
 exports.getExitStatus = getExitStatus;
+exports.setDirName = setDirName;
+exports.setPrefix = setPrefix;
 
 function out (s) {
     fs.write('/dev/stdout', s, 'w');
@@ -69,14 +73,29 @@ function turnOffAnimations() {
     });
 }
 
+function setDirName (dirname) {
+    if (!dirname) {
+        _testdir = '.';
+    } else {
+        _testdir = dirname;
+    }
+}
+
+function setPrefix (prefix) {
+    _prefix = prefix;
+}
+
 function _fileNameGetter(root, filename) {
     if (!filename) {
         filename = 'screenshot_' + _count++;
     }
-    var name = _root + "/" + filename + ".png";
-
-    if (fs.isFile(name)) {
-        return _diffRoot + "/" + filename + ".png";
+    filename += '.png';
+    if (_prefix) {
+        filename = _prefix + '_' + filename;
+    }
+    var name = [root, _testdir, filename].join(fs.separator);
+    if(fs.isFile(name)) {
+        return [_diffRoot, _testdir, filename].join(fs.separator);
     } else {
         return name;
     }
