@@ -1,7 +1,7 @@
-inSpectre
-=========
+Spectre
+=======
 
-*CSS regression testing*. An integration of [Resemble.js](http://huddle.github.com/Resemble.js/) with [PhantomJS](http://github.com/ariya/phantomjs/) and [CasperJS](http://github.com/n1k0/casperjs) for automating visual regression testing of Website styling to support refactoring of CSS.
+*CSS regression testing*. Adds [Resemble.js](http://huddle.github.com/Resemble.js/) image comparison functionality to [CasperJS](http://github.com/n1k0/casperjs) testing and navigation framework for [PhantomJS](http://github.com/ariya/phantomjs/), in order to produce automated visual regression testing.
 
 ### Why?
 
@@ -9,9 +9,9 @@ The problem with functional UI tests is that they make assertions on HTML markup
 
 ### How?
 
-PhantomCSS takes screenshots captured by PhantomJS and compares them to baseline images using [Resemble.js](http://huddle.github.com/Resemble.js/) to test for rgb pixel differences with HTML5 canvas. PhantomCSS then generates image diffs to help you find the cause so you don't need to manually compare the new and old images.
+Specter takes screenshots captured by PhantomJS and compares them to baseline images using [Resemble.js](http://huddle.github.com/Resemble.js/) to test for rgb pixel differences with HTML5 canvas. Specter then generates image diffs to help you find the cause so you don't need to manually compare the new and old images.
 
-PhantomCSS can only work when UI is predictable. It's possible to hide mutable UI components with PhantomCSS but it would be better if could drive the UI from faked data during test runs.  Take a look at [PhantomXHR](http://github.com/Huddle/PhantomXHR) for mocking XHR requests.
+Specter can only work when UI is predictable. If parts of your content come via AJAX, you may want to mock those responses. Take a look at [PhantomXHR](http://github.com/Huddle/PhantomXHR) for mocking XHR requests.
 
 ### Example
 
@@ -83,4 +83,4 @@ css.turnOffAnimations(); // turn off CSS transitions and jQuery animations
 --------------------------------------
 
 Maintained by [Randy Hunt](http://github.com/letsgetrandy)
-Based on PhantomCSS, originally created by [James Cryer](http://github.com/jamescryer) and the Huddle development team.
+Specter is based on PhantomCSS, originally created by [James Cryer](http://github.com/jamescryer) and the Huddle development team.
