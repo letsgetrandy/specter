@@ -1,153 +1,57 @@
+/*global phantom, CasperError, patchRequire, console, require:true, casper:true*/
+
+if (!phantom.casperLoaded) {
+    console.log('This script must be invoked using the casperjs executable');
+    phantom.exit(1);
+}
+var casper = require('casper').create({
+    exitOnError: false
+});
 
 var fs = require('fs');
 
-var _root = '.';
-var _tempDir = '.';
-var _diffRoot = '/tmp/diff';  // hope this value is never used
-var _failRoot = '/tmp/fail';  // hope this value is never used
+var _root = '../screenshots';
+var _tempDir = '/tmp/inspectre';
+var _diffRoot = _tempDir + '/diff';
+var _failRoot = _tempDir + '/fail';
 
 var _verbose = false;
 var _count = 0;
 var _realPath;
 var _diffsToProcess = [];
-var _emptyPageToRunTestsOn;
-var _libraryRoot = '.';
+var _diffpage = 'http://localhost:8003/cdn/styles/tests/blank.html';
+var _libraryRoot = '/Users/randyhunt/dev/inspectre/bin';
 var exitStatus;
-var _hideElements;
 var _testdir;
 var _prefix;
 
-exports.screenshot = screenshot;
-exports.compareAll = compareAll;
-exports.init = init;
-exports.turnOffAnimations = turnOffAnimations;
-exports.getExitStatus = getExitStatus;
-exports.setDirName = setDirName;
-exports.setPrefix = setPrefix;
 
 function out (s) {
     fs.write('/dev/stdout', s, 'w');
 }
 
-function init(options){
-    casper = options.casper || casper;
-    _emptyPageToRunTestsOn = options.testRunnerUrl;
-    _libraryRoot = options.libraryRoot || _libraryRoot;
-    _root = options.baselineRoot || _root;
-    _tempDir = options.tempDir || _tempDir;
-    _fileNameGetter = options.fileNameGetter || _fileNameGetter;
-
-    _diffRoot = _tempDir + "/diff";
-    _failRoot = _tempDir + "/fail";
-
-    _onPass = options.onPass || _onPass;
-    _onFail = options.onFail || _onFail;
-    _onTimeout = options.onTimeout || _onTimeout;
-    _onComplete = options.onComplete || options.report || _onComplete;
-
-    _hideElements = options.hideElements;
-
-    // can't use || shorthand, because false will fall-through
-    if (options.verbose) {
-        _verbose = true;
-    }
-
-    // wipe failures and diffs
-    fs.removeTree(_diffRoot);
-    fs.removeTree(_failRoot);
-}
-
-function turnOffAnimations() {
-    console.log('Turning off animations');
-    casper.evaluate(function turnOffAnimations(){
-        window.addEventListener('load', function(){
-            var css = document.createElement("style");
-            css.type = "text/css";
-            css.innerHTML = "* { -webkit-transition: none !important; transition: none !important; }";
-            document.body.appendChild(css);
-
-            if(jQuery){
-                $.fx.off = true;
-            }
-        },false);
-    });
-}
-
-function setDirName (dirname) {
-    if (!dirname) {
-        _testdir = '.';
-    } else {
-        _testdir = dirname;
-    }
-}
-
-function setPrefix (prefix) {
-    _prefix = prefix;
-}
-
-function _fileNameGetter(root, filename) {
-    if (!filename) {
-        filename = 'screenshot_' + _count++;
-    }
-    filename += '.png';
-    if (_prefix) {
-        filename = _prefix + '_' + filename;
-    }
-    var name = [root, _testdir, filename].join(fs.separator);
-    if(fs.isFile(name)) {
-        return [_diffRoot, _testdir, filename].join(fs.separator);
-    } else {
-        return name;
-    }
-}
-
-function screenshot(selector, timeToWait, hideSelector, fileName) {
-    casper.captureBase64('png'); // force pre-render
-    casper.wait(timeToWait || 250, function() {
-
-        if (hideSelector || _hideElements) {
-            casper.evaluate(function(s1, s2){
-                if(s1){
-                    $(s1).css('visibility', 'hidden');
-                }
-                $(s2).css('visibility', 'hidden');
-            }, {
-                s1: _hideElements,
-                s2: hideSelector
-            });
-        }
-        try{
-            casper.captureSelector(_fileNameGetter(_root, fileName), selector);
-        }
-        catch(ex){
-            console.log("Screenshot FAILED: " + ex.message);
-        }
-    }); // give a bit of time for all the images appear
-}
-
 function asyncCompare(one, two, func) {
 
-    if(!casper.evaluate(function(){ return window._imagediff_;})){
-        initClient();
+    if(!casper.evaluate(function(){ return window.diffing;})){
+        console.log('resemble.js error');
+        phantom.exit(1);
     }
-    casper.fill('form#image-diff', {
-        'one': one,
-        'two': two
+    casper.fill('#diff_form', {
+        "a": one,
+        "b": two
     });
-    casper.evaluate(function(filename){
-        window._imagediff_.run(filename);
-    }, {
-        label: one
+    casper.evaluate(function(){
+        window.diffing.run();
     });
     casper.waitFor(
         function check() {
             return this.evaluate(function(){
-                return window._imagediff_.hasResult;
+                return window.diffing.done;
             });
         },
         function () {
             var mismatch = casper.evaluate(function(){
-                return window._imagediff_.getResult();
+                return window.diffing.getResult();
             });
 
             if(Number(mismatch)){
@@ -159,14 +63,13 @@ function asyncCompare(one, two, func) {
         }, function(){
             func(false);
         },
-        10000
+        5000
     );
 }
 
 function getDiffs (path){
     var filePath;
 
-    //if (({'..':1,'.':1})[path]) {
     if ( path == '..' || path == '.') {
         return true;
     }
@@ -186,6 +89,7 @@ function getDiffs (path){
 }
 
 function compareAll(){
+    console.log('comparing');
     var tests = [];
     var fails = 0;
     var errors = 0;
@@ -205,7 +109,7 @@ function compareAll(){
             tests.push(test);
         } else {
             casper.
-            thenOpen (_emptyPageToRunTestsOn, function (){
+            thenOpen (_diffpage, function (){
                 asyncCompare(baseFile, diffFile, function(isSame, mismatch){
 
                     if(!isSame){
@@ -223,7 +127,7 @@ function compareAll(){
                         casper.waitFor(
                             function check() {
                                 return casper.evaluate(function(){
-                                    return window._imagediff_.hasImage;
+                                    return window.diffing.hasImage;
                                 });
                             },
                             function () {
@@ -239,12 +143,12 @@ function compareAll(){
                                 failFile = safeFileName;
 
                                 casper.evaluate(function(){
-                                    window._imagediff_.hasImage = false;
+                                    window.diffing.hasImage = false;
                                 });
 
                                 casper.captureSelector(failFile, 'img');
                             }, function(){},
-                            10000
+                            5000
                         );
                     } else {
                         _onPass(test);
@@ -262,65 +166,7 @@ function compareAll(){
         }, function(){
             _onComplete(tests, fails, errors);
         }, function(){},
-        10000);
-    });
-}
-
-function initClient(){
-
-    casper.page.injectJs(_libraryRoot+'/resemble.js');
-
-    casper.evaluate(function(){
-
-        var result;
-
-        var div = document.createElement('div');
-
-        // this is a bit of hack, need to get images into browser for analysis
-        div.style = "display:block;position:absolute;border:0;top:-1px;left:-1px;height:1px;width:1px;overflow:hidden;";
-        div.innerHTML = '<form id="image-diff">'+
-            '<input type="file" id="image-diff-one" name="one"/>'+
-            '<input type="file" id="image-diff-two" name="two"/>'+
-        '</form><div id="image-diff"></div>';
-        document.body.appendChild(div);
-
-        window._imagediff_ = {
-            hasResult: false,
-            hasImage: false,
-            run: run,
-            getResult: function(){
-                window._imagediff_.hasResult = false;
-                return result;
-            }
-        };
-
-        function run(label){
-
-            function render(data){
-                document.getElementById('image-diff').innerHTML = '<img src="'+data.getImageDataUrl(label)+'"/>';
-                window._imagediff_.hasImage = true;
-            }
-
-            resemble(document.getElementById('image-diff-one').files[0]).
-                compareTo(document.getElementById('image-diff-two').files[0]).
-                ignoreAntialiasing(). // <-- muy importante
-                onComplete(function(data){
-                    var diffImage;
-
-                    if(Number(data.misMatchPercentage) > 0.05){
-                        result = data.misMatchPercentage;
-                    } else {
-                        result = false;
-                    }
-
-                    window._imagediff_.hasResult = true;
-
-                    if(Number(data.misMatchPercentage) > 0.05){
-                        render(data);
-                    }
-
-                });
-        }
+        5000);
     });
 }
 
@@ -391,6 +237,12 @@ function _onComplete(tests, noOfFails, noOfErrors){
     }
 }
 
-function getExitStatus() {
-    return exitStatus;
-}
+casper.start(_diffpage, function() {
+    fs.removeTree(_failRoot);
+})
+.then(function() {
+    compareAll();
+})
+.run(function() {
+    phantom.exit(exitStatus);
+});
