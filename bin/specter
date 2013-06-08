@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
-import json
+#import json
 import os
 import subprocess
 import sys
+import ConfigParser
+
 
 def test_cmd(cmd):
     try:
@@ -12,6 +14,7 @@ def test_cmd(cmd):
         sys.stderr.write('FAIL: %s\n' % ' '.join(err.cmd))
         sys.stderr.write('      %s\n' % err.output)
         sys.exit(1)
+
 
 def resolve(path):
     if os.path.islink(path):
@@ -45,20 +48,35 @@ SPECTER_PATH = os.path.abspath(os.path.join(os.path.dirname(resolve(__file__)), 
 PHANTOMJS_ARGS = []
 SYS_ARGS = sys.argv[1:]
 
-if len(SYS_ARGS) and SYS_ARGS[0] == '__selfcommandtest':
-    print('Starting Python executable tests...')
-    pkg_version = json.loads(open('package.json').read()).get('version')
-    scripts_path = os.path.join(SPECTER_PATH, 'tests', 'commands')
-    assert(test_cmd('--help').find(pkg_version) > -1)
-    assert(test_cmd('--version').strip() == pkg_version)
-    assert(test_cmd(os.path.join(scripts_path, 'script.js')) == 'it works\n')
-    test_output = test_cmd('test --no-colors ' + os.path.join(scripts_path, 'mytest.js'))
-    assert('PASS ok1' in test_output)
-    assert('PASS ok2' in test_output)
-    assert('PASS ok3' in test_output)
-    print('Python executable tests passed.')
-    sys.exit(0)
+conf = {
+        'baseline': './screenshots',
+        'diff': '/tmp/specter/diff',
+        'fail': '/tmp/specter/fail',
+    }
 
+rc_files = []
+
+apath = os.getcwd()
+while apath != '/':
+    if os.path.isfile(os.path.join(apath, '.specterrc')):
+        rc_files.append(os.path.join(apath, '.specterrc'))
+    apath = os.path.dirname(apath)
+if os.path.isfile(os.path.join(os.path.sep, 'etc', 'specterrc')):
+    rc_files.append(os.path.join(os.path.sep, 'etc', 'specterrc'))
+
+while rc_files:
+    with open(rc_files.pop()) as f:
+        cp = ConfigParser.SafeConfigParser()
+        cp.readfp(f)
+        for k in conf.keys():
+            try:
+                conf[k] = cp.get('paths', k)
+            except ConfigParser.NoSectionError as err:
+                pass
+            except ConfigParser.NoOptionError as err:
+                pass
+
+#print conf
 
 for arg in SYS_ARGS:
     found = False
@@ -73,32 +91,34 @@ for arg in SYS_ARGS:
 TESTRUNNER = ['casperjs']
 TESTRUNNER.extend([
     '--specter-path=%s' % SPECTER_PATH,
+    '--baseline=%s' % conf['baseline'],
+    '--diffdir=%s' % conf['diff'],
+    '--faildir=%s' % conf['fail'],
     os.path.join(SPECTER_PATH, 'bin', 'testrunner.js'),
 ])
 TESTRUNNER.extend(SPECTER_ARGS)
 
-print ' '.join(TESTRUNNER)
-
 try:
+    #print ' '.join(TESTRUNNER)
     subprocess.call(TESTRUNNER)
 except OSError as err:
     print('Fatal: %s; check your requirements')
-sys.exit(1)
+    sys.exit(1)
 
 
 COMPARE_COMMAND = ['casperjs']
 COMPARE_COMMAND.extend(PHANTOMJS_ARGS)
 COMPARE_COMMAND.extend([
+    '--specter-path=%s' % SPECTER_PATH,
+    '--baseline=%s' % conf['baseline'],
+    '--diffdir=%s' % conf['diff'],
+    '--faildir=%s' % conf['fail'],
     os.path.join(SPECTER_PATH, 'bin', 'compare.js'),
 ])
-#COMPARE_COMMAND.extend([
-#    os.path.join(SPECTER_PATH, 'bin', 'bootstrap.js'),
-#    '--specter-path=%s' % SPECTER_PATH,
-#])
-#COMPARE_COMMAND.extend(SPECTER_ARGS)
+COMPARE_COMMAND.extend(SPECTER_ARGS)
 
-print ' '.join(COMPARE_COMMAND)
 try:
+    #print ' '.join(COMPARE_COMMAND)
     subprocess.call(COMPARE_COMMAND)
 except OSError as err:
     print(('Fatal: %s; check your requirements' % err))

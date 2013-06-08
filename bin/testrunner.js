@@ -13,30 +13,12 @@ var casper       = require('casper').create({
     exitOnError: false
 });
 
-var tmp = ['', 'tmp', 'specter'].join(fs.separator);
 casper.specter = {
-    lib: '.',
     rebase: false,
-    baseline: '',
-    tempbase: tmp,
-    diffbase: [tmp, 'diff'].join(fs.separator),
-    failbase: [tmp, 'fail'].join(fs.separator)
+    baseline: casper.cli.get('baseline'),
+    diffbase: casper.cli.get('diffdir'),
+    failbase: casper.cli.get('faildir')
 };
-
-/*
-// local utils
-function checkSelfTest(tests) {
-    "use strict";
-    var isCasperTest = false;
-    tests.forEach(function(test) {
-        var testDir = fs.absolute(fs.dirname(test));
-        if (fs.isDirectory(testDir) && fs.exists(fs.pathJoin(testDir, '.casper'))) {
-            isCasperTest = true;
-        }
-    });
-    return isCasperTest;
-}
-*/
 
 function checkArgs() {
     "use strict";
@@ -78,6 +60,9 @@ function initRunner() {
             casper.warn('Test suite failed fast, all tests may not have been executed.');
         }
     });
+
+    fs.removeTree(casper.specter.diffbase);
+    fs.removeTree(casper.specter.failbase);
 }
 
 var error;
