@@ -8,26 +8,64 @@ var casper = require('casper').create({
     exitOnError: false
 });
 
+
 var fs = require('fs');
 
-var _root = '../screenshots';
-var _tempDir = '/tmp/inspectre';
-var _diffRoot = _tempDir + '/diff';
-var _failRoot = _tempDir + '/fail';
+//var specterpath = casper.cli.get('specter-path');
+var _root = casper.cli.get('baseline');
+var _diffRoot = casper.cli.get('diffdir');
+var _failRoot = casper.cli.get('faildir');
 
 var _verbose = false;
 var _count = 0;
-var _realPath;
-var _diffsToProcess = [];
 var _diffpage = 'http://localhost:8003/cdn/styles/tests/blank.html';
-var _libraryRoot = '/Users/randyhunt/dev/inspectre/bin';
 var exitStatus;
 var _testdir;
 var _prefix;
 
 
+// write to STDOUT without a newline
 function out (s) {
     fs.write('/dev/stdout', s, 'w');
+}
+
+
+// helper to recursively inspect a directory
+function recurse (path, checkpath) {
+    fs.list(path).forEach(function(filename) {
+        if (filename == '.' || filename == '..') {
+            return;
+        }
+        var f = [path, filename].join(fs.separator);
+        if (fs.isDirectory(f)) {
+            if (checkpath(f, true)) {
+                recurse(f, checkpath);
+            }
+        } else {
+            if (fs.isFile(f)) {
+                checkpath(f, false);
+            }
+        }
+    });
+}
+
+function getDiffs(dir, matches, mask) {
+    var regex = new RegExp("^" + fs.absolute(_root).replace('.', '\\.').replace('/', '\\/'));
+    function comparator (path, isDir) {
+        if (isDir) {
+            return true;
+        } else {
+            var abspath = fs.absolute(path);
+            if (fs.isFile(abspath.replace(regex, _diffRoot))) {
+                var filename = abspath.split(fs.separator).pop();
+                if (!mask || filename.indexOf(mask) === 0) {
+                    matches.push(path.substring(_root.length+1));
+                }
+            }
+        }
+    }
+    recurse(dir, comparator);
+    return matches;
 }
 
 function asyncCompare(one, two, func) {
@@ -67,36 +105,27 @@ function asyncCompare(one, two, func) {
     );
 }
 
-function getDiffs (path){
-    var filePath;
-
-    if ( path == '..' || path == '.') {
-        return true;
-    }
-    if (_realPath) {
-        _realPath += fs.separator + path;
-    } else {
-        _realPath = path;
-    }
-    filePath = _diffRoot + fs.separator + _realPath;
-
-    if (fs.isDirectory(filePath)) {
-        fs.list(filePath).forEach(getDiffs);
-    } else {
-        _diffsToProcess.push(_realPath);
-    }
-    _realPath = _realPath.replace(fs.separator + path, '');
-}
 
 function compareAll(){
-    console.log('comparing');
     var tests = [];
     var fails = 0;
     var errors = 0;
+    var queue = [];
 
-    getDiffs('');
-
-    _diffsToProcess.forEach(function(file){
+    casper.cli.args.forEach(function(path) {
+        var p = _root + fs.separator + path;
+        if (fs.isDirectory(path)) {
+            queue = getDiffs(p, queue);
+        }
+        if (fs.isFile(path)) {
+            console.log('is file');
+            var arr = p.split(fs.separator),
+                mask = arr.pop().replace(/(^test-)|(\.js$)/g, ''),
+                dir = arr.join(fs.separator);
+            queue = getDiffs(dir, queue, mask);
+        }
+    });
+    queue.forEach(function(file){
         var baseFile = _root + "/" + file;
         var diffFile = _diffRoot + "/" + file;
         var test = {
@@ -162,7 +191,7 @@ function compareAll(){
 
     casper.then(function(){
         casper.waitFor(function(){
-            return _diffsToProcess.length === tests.length;
+            return queue.length === tests.length;
         }, function(){
             _onComplete(tests, fails, errors);
         }, function(){},
