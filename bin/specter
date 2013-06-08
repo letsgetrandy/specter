@@ -49,14 +49,15 @@ PHANTOMJS_ARGS = []
 SYS_ARGS = sys.argv[1:]
 
 conf = {
+        'testroot': '.',
         'baseline': './screenshots',
         'diff': '/tmp/specter/diff',
         'fail': '/tmp/specter/fail',
     }
 
 rc_files = []
-
-apath = os.getcwd()
+cwd = os.getcwd()
+apath = cwd
 while apath != '/':
     if os.path.isfile(os.path.join(apath, '.specterrc')):
         rc_files.append(os.path.join(apath, '.specterrc'))
@@ -65,18 +66,23 @@ if os.path.isfile(os.path.join(os.path.sep, 'etc', 'specterrc')):
     rc_files.append(os.path.join(os.path.sep, 'etc', 'specterrc'))
 
 while rc_files:
-    with open(rc_files.pop()) as f:
+    path = rc_files.pop()
+    with open(path) as f:
         cp = ConfigParser.SafeConfigParser()
         cp.readfp(f)
         for k in conf.keys():
             try:
                 conf[k] = cp.get('paths', k)
+                if conf[k] != os.path.abspath(conf[k]):
+                    conf[k] = os.path.join(
+                            os.path.dirname(path),
+                            conf[k]
+                        )
             except ConfigParser.NoSectionError as err:
                 pass
             except ConfigParser.NoOptionError as err:
                 pass
 
-#print conf
 
 for arg in SYS_ARGS:
     found = False
@@ -85,8 +91,13 @@ for arg in SYS_ARGS:
             PHANTOMJS_ARGS.append(arg)
             found = True
     if not found:
-        SPECTER_ARGS.append(arg)
+        path = os.path.abspath(arg)
+        if path.find(conf['testroot']) == 0:
+            SPECTER_ARGS.append(path[len(conf['testroot']) + 1:])
+        else:
+            SPECTER_ARGS.append(arg)
 
+os.chdir(conf['testroot'])
 
 TESTRUNNER = ['casperjs']
 TESTRUNNER.extend([
