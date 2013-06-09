@@ -1,4 +1,4 @@
-/* global phantom, casper:true */
+/* global phantom, console, casper:true */
 
 if (!phantom.casperLoaded) {
     console.log('This script must be invoked using the casperjs executable');
