@@ -84,16 +84,19 @@ specter = function() {
         },
 
         turn_off_animations: function() {
-            window.addEventListener('load', function(){
-                var css = document.createElement("style");
-                css.type = "text/css";
-                css.innerHTML = "* { -webkit-transition: none !important; transition: none !important; }";
-                document.body.appendChild(css);
+            casper.evaluate(function() {
+                window.addEventListener('load', function(){
+                    var css = document.createElement("style");
+                    css.type = "text/css";
+                    css.innerHTML = "* { -webkit-transition: none !important; transition: none !important; }";
+                    document.body.appendChild(css);
 
-                if(jQuery){
-                    $.fx.off = true;
-                }
-            },false);
+                    if(jQuery){
+                        jQuery.finish();
+                        jQuery.fx.off = true;
+                    }
+                },false);
+            });
         },
 
         screenshot: function(selector, filename, waittime) {
@@ -107,6 +110,12 @@ specter = function() {
                         dir.join(fs.separator),
                         testfile + '-' + filename + '.png'
                     ].join(fs.separator);
+
+            casper.evaluate(function() {
+                if(jQuery) {
+                    $.finish();
+                }
+            });
 
             casper.captureBase64('png'); // force pre-render
             casper.wait(waittime || 250, function() {
