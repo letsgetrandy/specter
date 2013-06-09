@@ -1,8 +1,12 @@
 /*global phantom, CasperError, patchRequire, console, require:true, casper:true*/
 
+var EX_OK = 0,
+    EX_USAGE = 64,
+    EX_NOHOST = 68;
+
 if (!phantom.casperLoaded) {
     console.log('This script must be invoked using the casperjs executable');
-    phantom.exit(1);
+    phantom.exit(EX_USAGE);
 }
 var casper = require('casper').create({
     exitOnError: false
@@ -15,14 +19,10 @@ var fs = require('fs');
 var _root = casper.cli.get('baseline');
 var _diffRoot = casper.cli.get('diffdir');
 var _failRoot = casper.cli.get('faildir');
+var _diffpage = 'http://localhost:5055/blank.html';
 
 var _verbose = false;
-var _count = 0;
-var _diffpage = 'http://localhost:5055/blank.html';
 var exitStatus;
-var _testdir;
-var _prefix;
-
 
 // write to STDOUT without a newline
 function out (s) {
@@ -71,8 +71,8 @@ function getDiffs(dir, matches, mask) {
 function asyncCompare(one, two, func) {
 
     if(!casper.evaluate(function(){ return window.diffing;})){
-        console.log('resemble.js error');
-        phantom.exit(1);
+        casper.echo('resemble.js error', 'ERROR', 80);
+        phantom.exit(EX_NOHOST);
     }
     casper.fill('#diff_form', {
         "a": one,
@@ -118,7 +118,6 @@ function compareAll(){
             queue = getDiffs(p, queue);
         }
         if (fs.isFile(path)) {
-            console.log('is file');
             var arr = p.split(fs.separator),
                 mask = arr.pop().replace(/(^test-)|(\.js$)/g, ''),
                 dir = arr.join(fs.separator);
@@ -244,7 +243,6 @@ function _onComplete(tests, noOfFails, noOfErrors){
             if(noOfErrors !== 0){
                 console.log("There were " + noOfErrors + "errors.  Is it possible that a baseline image was deleted but not the diff?");
             }
-
             exitStatus = noOfErrors+noOfFails;
         }
     } else {

@@ -1,8 +1,11 @@
 /* global phantom, console, casper:true */
 
+var EX_OK = 0,
+    EX_USAGE = 64;
+
 if (!phantom.casperLoaded) {
     console.log('This script must be invoked using the casperjs executable');
-    phantom.exit(1);
+    phantom.exit(EX_USAGE);
 }
 
 specter = function() {
