@@ -18,7 +18,7 @@ var _failRoot = casper.cli.get('faildir');
 
 var _verbose = false;
 var _count = 0;
-var _diffpage = 'http://localhost:8003/cdn/styles/tests/blank.html';
+var _diffpage = 'http://localhost:5055/blank.html';
 var exitStatus;
 var _testdir;
 var _prefix;

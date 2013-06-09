@@ -1,10 +1,37 @@
 #!/usr/bin/env python
 
-#import json
 import os
 import subprocess
 import sys
+import threading
 import ConfigParser
+import BaseHTTPServer
+from SimpleHTTPServer import SimpleHTTPRequestHandler
+
+
+class MyHandler(SimpleHTTPRequestHandler):
+    def log_message(self, format, *args):
+        return
+
+
+class TestServer(threading.Thread):
+
+    def __init__(self, path):
+        super(TestServer, self).__init__()
+        self.path = path
+
+    def stop(self):
+        self.httpd.shutdown()
+
+    def run(self):
+        #start local web server
+        cwd = os.getcwd()
+        os.chdir(self.path)
+        HandlerClass = MyHandler
+        HandlerClass.protocol_version = "HTTP/1.0"
+        self.httpd = BaseHTTPServer.HTTPServer(('127.0.0.1', 5055), HandlerClass)
+        self.httpd.serve_forever()
+        os.chdir(cwd)
 
 
 def test_cmd(cmd):
@@ -128,9 +155,15 @@ COMPARE_COMMAND.extend([
 ])
 COMPARE_COMMAND.extend(SPECTER_ARGS)
 
+server = TestServer(os.path.join(SPECTER_PATH, 'resemble'))
 try:
     #print ' '.join(COMPARE_COMMAND)
+    server.start()
     subprocess.call(COMPARE_COMMAND)
+    server.stop()
 except OSError as err:
     print(('Fatal: %s; check your requirements' % err))
+    server.stop()
     sys.exit(1)
+
+sys.exit(0)
