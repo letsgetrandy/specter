@@ -13,71 +13,73 @@ Specter takes screenshots captured by PhantomJS and compares them to baseline im
 
 Specter can only work when UI is predictable. If parts of your content come via AJAX, you may want to mock those responses. Take a look at [PhantomXHR](http://github.com/Huddle/PhantomXHR) for mocking XHR requests.
 
-### Example
+### Usage
 
 Check out the [demo](http://github.com/Huddle/PhantomCSS/tree/master/demo) for a full working example (run `phantomjs demo/testsuite.js` from the command line).
 
+Specter adds a global `specter` object to your casper tests. Just write your casper functional tests as normal, capturing screenshots as you go.
+
 ```javascript
 
-var css = require('./modules/phantomcss.js');
+/* global casper:false */
 
-css.init({
-    libraryRoot: './modules/PhantomCSS',
-    screenshotRoot: './screenshots',
-    failedComparisonsRoot: './failures',
-    testRunnerUrl: 'http://my.blank.page.html', //  needs to be a 'http' domain for the HTML5 magic to work
+casper
+.start('http://localhost/', function () {
+    casper.viewport(1024, 600);
+    specter.turn_off_animations();
+    specter.screenshot("main > .content", "main");
+    this.test.assertExists('form#login #id_username', 'username field');
+    this.test.assertExists('form#login #id_password', 'password field');
+})
+.thenOpen('http://localhost/password-reset/', function () {
+    specter.screenshot("main > .content", "password-reset");
+})
+.run(function(){
+    this.test.done(0);
 });
 
-css.screenshot("#CSS .selector"/*, delay: 500, selector: '.elements-to-be-hidden', filename: 'my_webapp_feature'*/);
-
-css.compareAll();
 ```
+
+Specter will compare the after the functional tests have finished. Just invoke your tests by calling `specter` rather than `casperjs`.
+
+Specter can run a single test file:
+
+```bash
+$ specter tests/test-login.js
+```
+
+Or, multiple files:
+
+```bash
+$ specter tests/test-login.js tests/test-homepage.js tests/test-checkout.js
+```
+
+Or, it can recursively run every test file in a specified directory:
+
+```bash
+$ specter tests
+```
+
 
 ### Workflow
 
 * Define what screenshots you need in your regular tests
-* Ensure that the 'compareAll' method gets called at the end of the test run
 * Find the screenshot directory and check that they look as you expect.  These images will be used as a baseline.  Subsequent test runs will report if the latest screenshot is different to the baseline
 * Commit/push these baseline images with your normal tests (presuming you're using a version control system)
 * Run the tests again.  New screenshots will be created to compare against the baseline image.  These new images can be ignored, they will be replaced every test run. They don't need to be committed
 * If there are test failures, image diffs will be generated.
 
 
-### Another example
+### Configuration
 
-```javascript
+```
+$ cat .specterrc
 
-css.init({
-    libraryRoot: './modules/PhantomCSS',
-    screenshotRoot: './screenshots',
-    failedComparisonsRoot: './failures',
-    testRunnerUrl: 'http://my.blank.page.html',
-
-    onFail: function(test){ console.log(test.filename, test.mismatch); },
-    onPass: function(){ console.log(test.filename); },
-    onTimeout: function(){ console.log(test.filename); },
-    onComplete: function(allTests, noOfFails, noOfErrors){
-        allTests.forEach(function(test){
-            if(test.fail){
-                console.log(test.filename, test.mismatch);
-            }
-        });
-    },
-    fileNameGetter: function(root,filename){
-        // globally override output filename
-        // files must exist under root
-        // and use the .diff convention
-        var name = root+'/somewhere/'+filename;
-        if(fs.isFile(name+'.png')){
-            return name+'.diff.png';
-        } else {
-            return name+'.png';
-        }
-    }
-});
-
-css.turnOffAnimations(); // turn off CSS transitions and jQuery animations
-
+[paths]
+testroot = static/styles/tests
+baseline = static/styles/screenshots
+diff = /tmp/specter/diff
+fail = /tmp/specter/fail
 ```
 
 --------------------------------------
