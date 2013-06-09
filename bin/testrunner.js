@@ -1,8 +1,11 @@
 /*global phantom, CasperError, patchRequire, console, require:true, casper:true*/
 
+var EX_OK = 0,
+    EX_USAGE = 64;
+
 if (!phantom.casperLoaded) {
     console.log('This script must be invoked using the casperjs executable');
-    phantom.exit(1);
+    phantom.exit(EX_USAGE);
 }
 
 var fs           = require('fs');
@@ -43,7 +46,7 @@ function checkArgs() {
         });
     } else {
         casper.echo('No test path passed, exiting.', 'RED_BAR', 80);
-        casper.exit(1);
+        casper.exit(EX_USAGE);
     }
 }
 

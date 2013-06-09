@@ -9,6 +9,10 @@ import BaseHTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 
+EX_OK = 0
+EX_SOFTWARE = 70
+
+
 class MyHandler(SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         return
@@ -39,6 +43,28 @@ def resolve(path):
         path = os.path.join(os.path.dirname(path), os.readlink(path))
         return resolve(path)
     return path
+
+
+def call_casper(script, config, args, phantom_args, specter_path):
+    cmd = ['casperjs']
+    cmd.extend(phantom_args)
+    cmd.extend([
+        '--specter-path=%s' % specter_path,
+        '--baseline=%s' % config['baseline'],
+        '--diffdir=%s' % config['diff'],
+        '--faildir=%s' % config['fail'],
+        script,
+    ])
+    cmd.extend(args)
+    try:
+        #print ' '.join(cmd)
+        subprocess.call(cmd)
+        return EX_OK
+    except OSError as err:
+        print('Fatal: %s; check your requirements' % err)
+        return EX_SOFTWARE
+        #sys.exit(EX_SOFTWARE)
+
 
 PHANTOMJS_NATIVE_ARGS = [
     'cookies-file',
@@ -117,44 +143,18 @@ for arg in SYS_ARGS:
 
 os.chdir(conf['testroot'])
 
-TESTRUNNER = ['casperjs']
-TESTRUNNER.extend([
-    '--specter-path=%s' % SPECTER_PATH,
-    '--baseline=%s' % conf['baseline'],
-    '--diffdir=%s' % conf['diff'],
-    '--faildir=%s' % conf['fail'],
-    os.path.join(SPECTER_PATH, 'bin', 'testrunner.js'),
-])
-TESTRUNNER.extend(SPECTER_ARGS)
+# run functional tests and gather screenshots
+sts = call_casper(
+        os.path.join(SPECTER_PATH, 'bin', 'testrunner.js'),
+        conf, SPECTER_ARGS, PHANTOMJS_ARGS, SPECTER_PATH)
 
-try:
-    #print ' '.join(TESTRUNNER)
-    subprocess.call(TESTRUNNER)
-except OSError as err:
-    print('Fatal: %s; check your requirements')
-    sys.exit(1)
-
-
-COMPARE_COMMAND = ['casperjs']
-COMPARE_COMMAND.extend(PHANTOMJS_ARGS)
-COMPARE_COMMAND.extend([
-    '--specter-path=%s' % SPECTER_PATH,
-    '--baseline=%s' % conf['baseline'],
-    '--diffdir=%s' % conf['diff'],
-    '--faildir=%s' % conf['fail'],
-    os.path.join(SPECTER_PATH, 'bin', 'compare.js'),
-])
-COMPARE_COMMAND.extend(SPECTER_ARGS)
-
-server = TestServer(os.path.join(SPECTER_PATH, 'resemble'))
-try:
-    #print ' '.join(COMPARE_COMMAND)
+if sts == EX_OK:
+    # compare the screen captures
+    server = TestServer(os.path.join(SPECTER_PATH, 'resemble'))
     server.start()
-    subprocess.call(COMPARE_COMMAND)
+    sts = call_casper(
+            os.path.join(SPECTER_PATH, 'bin', 'compare.js'),
+            conf, SPECTER_ARGS, PHANTOMJS_ARGS, SPECTER_PATH)
     server.stop()
-except OSError as err:
-    print(('Fatal: %s; check your requirements' % err))
-    server.stop()
-    sys.exit(1)
 
-sys.exit(0)
+sys.exit(sts)
