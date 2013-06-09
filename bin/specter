@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+import time
 import threading
 import ConfigParser
 import BaseHTTPServer
@@ -29,13 +30,11 @@ class TestServer(threading.Thread):
 
     def run(self):
         #start local web server
-        cwd = os.getcwd()
         os.chdir(self.path)
         HandlerClass = MyHandler
         HandlerClass.protocol_version = "HTTP/1.0"
         self.httpd = BaseHTTPServer.HTTPServer(('127.0.0.1', 5055), HandlerClass)
         self.httpd.serve_forever()
-        os.chdir(cwd)
 
 
 def resolve(path):
@@ -45,25 +44,18 @@ def resolve(path):
     return path
 
 
-def call_casper(script, config, args, phantom_args, specter_path):
+def call_casper(script, config):
     cmd = ['casperjs']
-    cmd.extend(phantom_args)
+    cmd.extend(config['phantom_args'])
     cmd.extend([
-        '--specter-path=%s' % specter_path,
+        '--specter-path=%s' % config['path'],
         '--baseline=%s' % config['baseline'],
         '--diffdir=%s' % config['diff'],
         '--faildir=%s' % config['fail'],
         script,
     ])
-    cmd.extend(args)
-    try:
-        #print ' '.join(cmd)
-        subprocess.call(cmd)
-        return EX_OK
-    except OSError as err:
-        print('Fatal: %s; check your requirements' % err)
-        return EX_SOFTWARE
-        #sys.exit(EX_SOFTWARE)
+    cmd.extend(config['args'])
+    return subprocess.Popen(cmd, cwd=config['testroot'])
 
 
 PHANTOMJS_NATIVE_ARGS = [
@@ -87,9 +79,6 @@ PHANTOMJS_NATIVE_ARGS = [
     'script-encoding',
     'web-security',
 ]
-SPECTER_ARGS = []
-SPECTER_PATH = os.path.abspath(os.path.join(os.path.dirname(resolve(__file__)), '..'))
-PHANTOMJS_ARGS = []
 SYS_ARGS = sys.argv[1:]
 
 conf = {
@@ -97,6 +86,9 @@ conf = {
         'baseline': './screenshots',
         'diff': '/tmp/specter/diff',
         'fail': '/tmp/specter/fail',
+        'args': [],
+        'phantom_args': [],
+        'path': os.path.abspath(os.path.join(os.path.dirname(resolve(__file__)), '..')),
     }
 
 rc_files = []
@@ -132,29 +124,31 @@ for arg in SYS_ARGS:
     found = False
     for native in PHANTOMJS_NATIVE_ARGS:
         if arg.startswith('--%s' % native):
-            PHANTOMJS_ARGS.append(arg)
+            conf['phantom_args'].append(arg)
             found = True
     if not found:
         path = os.path.abspath(arg)
         if path.find(conf['testroot']) == 0:
-            SPECTER_ARGS.append(path[len(conf['testroot']) + 1:])
+            conf['args'].append(path[len(conf['testroot']) + 1:])
         else:
-            SPECTER_ARGS.append(arg)
+            conf['args'].append(arg)
 
 os.chdir(conf['testroot'])
 
 # run functional tests and gather screenshots
-sts = call_casper(
-        os.path.join(SPECTER_PATH, 'bin', 'testrunner.js'),
-        conf, SPECTER_ARGS, PHANTOMJS_ARGS, SPECTER_PATH)
+p = call_casper(
+        os.path.join(conf['path'], 'bin', 'testrunner.js'), conf)
+
+sts = p.wait()
 
 if sts == EX_OK:
     # compare the screen captures
-    server = TestServer(os.path.join(SPECTER_PATH, 'resemble'))
+    server = TestServer(os.path.join(conf['path'], 'resemble'))
     server.start()
-    sts = call_casper(
-            os.path.join(SPECTER_PATH, 'bin', 'compare.js'),
-            conf, SPECTER_ARGS, PHANTOMJS_ARGS, SPECTER_PATH)
+    time.sleep(1)
+    p = call_casper(
+            os.path.join(conf['path'], 'bin', 'compare.js'), conf)
+    sts = p.wait()
     server.stop()
 
 sys.exit(sts)
