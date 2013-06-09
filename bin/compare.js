@@ -142,7 +142,6 @@ function compareAll(){
                 asyncCompare(baseFile, diffFile, function(isSame, mismatch){
 
                     if(!isSame){
-
                         test.fail = true;
                         fails++;
 
@@ -205,7 +204,7 @@ function _onPass(test){
 function _onFail(test){
     if (_verbose) {
         // original output text
-        console.log('FAILED: ('+test.mismatch+'% mismatch)', test.filename, '\n');
+        casper.echo('FAILED: ' + test.filename, 'WARNING', 80);
     } else {
         // console-friendly, non-verbose reporting
         out("F");
@@ -214,7 +213,7 @@ function _onFail(test){
 function _onTimeout(test){
     if (_verbose) {
         // original output text
-        console.log('TIMEOUT: ', test.filename, '\n');
+        casper.echo('TIMEOUT: ' + test.filename, 'WARNING', 80);
     } else {
         // console-friendly, non-verbose reporting
         out("E");
@@ -254,14 +253,14 @@ function _onComplete(tests, noOfFails, noOfErrors){
         if (noOfFails > 0) {
             var e = noOfErrors + ' error' + (noOfErrors == 1 ? ' ' : 's.');
             var f = noOfFails + ' failure' + (noOfFails == 1 ? ' ' : 's.');
-            console.log(f + " " + e);
+            casper.echo(f + " " + e, 'COMMENT', 80);
             tests.forEach(function(test){
                 if(test.fail){
-                    console.log("FAILURE: " + test.filename);
+                    casper.echo("FAILURE: " + test.filename, 'ERROR', 80);
                 }
             });
         } else {
-            console.log('SUCCESS.');
+            casper.echo('SUCCESS.', 'GREEN_BAR', 80);
         }
     }
 }
