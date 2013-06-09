@@ -34,15 +34,6 @@ class TestServer(threading.Thread):
         os.chdir(cwd)
 
 
-def test_cmd(cmd):
-    try:
-        return subprocess.check_output([__file__] + cmd.split(' '))
-    except subprocess.CalledProcessError as err:
-        sys.stderr.write('FAIL: %s\n' % ' '.join(err.cmd))
-        sys.stderr.write('      %s\n' % err.output)
-        sys.exit(1)
-
-
 def resolve(path):
     if os.path.islink(path):
         path = os.path.join(os.path.dirname(path), os.readlink(path))
