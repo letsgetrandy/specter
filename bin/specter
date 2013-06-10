@@ -108,7 +108,7 @@ while rc_files:
         cp.readfp(f)
         for k in conf.keys():
             try:
-                conf[k] = cp.get('paths', k)
+                conf[k] = cp.get('specter', k)
                 if conf[k] != os.path.abspath(conf[k]):
                     conf[k] = os.path.join(
                             os.path.dirname(path),

@@ -75,12 +75,28 @@ $ specter tests
 ```
 $ cat .specterrc
 
-[paths]
+[specter]
 testroot = static/styles/tests
 baseline = static/styles/screenshots
 diff = /tmp/specter/diff
 fail = /tmp/specter/fail
 ```
+
+
+### Demo
+
+Run all demo tests simply by passing the demo directory as an argument:
+
+```
+$ specter demo
+```
+
+Or, run a single demo test by passing just that file as an argument:
+
+```
+$ specter demo/test-facebook.js
+```
+
 
 --------------------------------------
 
