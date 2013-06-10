@@ -4,8 +4,8 @@ You can check out the [contribution graphs on github](https://github.com/letsget
 
 ```
 $ git shortlog -s -n | cut -c8-
-James Cryer
 Randy "Big Game" Hunt
+James Cryer
 Simon Madine
 Harold Dennison
 Robert Sedovšek
