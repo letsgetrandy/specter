@@ -82,7 +82,7 @@ PHANTOMJS_NATIVE_ARGS = [
 SYS_ARGS = sys.argv[1:]
 
 conf = {
-        'testroot': '.',
+        'testroot': os.path.abspath('.'),
         'baseline': './screenshots',
         'diff': '/tmp/specter/diff',
         'fail': '/tmp/specter/fail',
