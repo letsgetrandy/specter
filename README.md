@@ -27,9 +27,9 @@ $ sudo ln -s bin/specter /usr/local/bin/specter && chmod 755 /usr/local/bin/spec
 
 ### Usage
 
-Check out the [demo](http://github.com/letsgetrandy/specter/tree/master/demo) for a full working example (run `phantomjs demo/testsuite.js` from the command line).
+Check out the [demo](http://github.com/letsgetrandy/specter/tree/master/demo) for a full working example (run `specter demo` from the command line).
 
-Specter adds a global `specter` object to your casper tests. Just write your casper functional tests as normal, capturing screenshots as you go.
+Specter adds a global `specter` object to your casper tests. Just write your [casper functional tests](http://casperjs.org/testing.html) as normal, but have specter capture screenshots as you go.
 
 ```javascript
 
