@@ -1,17 +1,29 @@
-Spectre
+Specter
 =======
 
-*CSS regression testing*. Adds [Resemble.js](http://huddle.github.com/Resemble.js/) image comparison functionality to [CasperJS](http://github.com/n1k0/casperjs) testing and navigation framework for [PhantomJS](http://github.com/ariya/phantomjs/), in order to produce automated visual regression testing.
+Specter adds [Resemble.js](http://huddle.github.com/Resemble.js/) image comparison functionality to [CasperJS](http://github.com/n1k0/casperjs) testing and navigation framework for [PhantomJS](http://github.com/ariya/phantomjs/), in order to produce automated visual regression testing.
+
 
 ### Why?
 
 The problem with functional UI tests is that they make assertions on HTML markup, not the actual rendering. You can't know through automated tests if something has visually broke, too much margin, disabled state etc.  This situation is exacerbated by the increasing use of CSS3 for visual state changes that were traditionally built with JavaScript and DOM manipulation, ':target' pseudoclass or keyframes for example. Read more on Huddle's Engineering blog: [CSS Regression Testing](http://tldr.huddle.com/blog/css-testing/).
 
-### How?
 
-Specter takes screenshots captured by PhantomJS and compares them to baseline images using [Resemble.js](http://huddle.github.com/Resemble.js/) to test for rgb pixel differences with HTML5 canvas. Specter then generates image diffs to help you find the cause so you don't need to manually compare the new and old images.
+### Installation
 
-Specter can only work when UI is predictable. If parts of your content come via AJAX, you may want to mock those responses. Take a look at [PhantomXHR](http://github.com/Huddle/PhantomXHR) for mocking XHR requests.
+Just clone the repo and then link `bin/specter` into your path and make it executable.
+
+Eg:
+
+```
+# local
+$ ln -s bin/specter ~/bin/specter && chmod 755 ~/bin/specter
+
+OR
+
+# global
+$ sudo ln -s bin/specter /usr/local/bin/specter && chmod 755 /usr/local/bin/specter
+```
 
 ### Usage
 
