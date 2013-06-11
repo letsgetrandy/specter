@@ -11,9 +11,9 @@ The problem with functional UI tests is that they make assertions on HTML markup
 
 ### Installation
 
-Just clone the repo and then link `bin/specter` into your path and make it executable.
+Specter requires [CasperJS](http://github.com/n1k0/casperjs), which can be installed on Mac via Homebrew (`brew install casperjs`) or installed manually on any other system by cloning the repo.
 
-Eg:
+To use Specter, just clone this repo and then link `bin/specter` into your path and make it executable. Eg:
 
 ```
 # local
@@ -29,7 +29,16 @@ $ sudo ln -s bin/specter /usr/local/bin/specter && chmod 755 /usr/local/bin/spec
 
 Check out the [demo](http://github.com/letsgetrandy/specter/tree/master/demo) for a full working example (run `specter demo` from the command line).
 
-Specter adds a global `specter` object to your casper tests. Just write your [casper functional tests](http://casperjs.org/testing.html) as normal, but have specter capture screenshots as you go.
+Specter adds a global `specter` object to your casper tests, with a `screenshot()` method which requires two parameters:
+
+```
+specter.screenshot(String css_selector, String file_name)
+
+    css_selector:  A selector to define what you want to capture
+    file_name   :  A descriptor to use when saving the screenshot
+```
+
+Just write your [casper functional tests](http://casperjs.org/testing.html) as normal, but have specter capture screenshots as you go.
 
 ```javascript
 
