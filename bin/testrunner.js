@@ -10,6 +10,7 @@ if (!phantom.casperLoaded) {
 
 var fs           = require('fs');
 var utils        = require('utils');
+var colorizer    = require('colorizer');
 var f            = utils.format;
 var tests        = [];
 var casper       = require('casper').create({
@@ -26,6 +27,11 @@ casper.specter = {
 function checkArgs() {
     "use strict";
     // parse some options from cli
+    if (casper.cli.get('no-color') === true) {
+        var cls = 'Dummy';
+        casper.options.colorizerType = cls;
+        casper.colorizer = colorizer.create(cls);
+    }
     casper.test.options.concise = true;
     casper.test.options.failFast = casper.cli.get('fail-fast') || false;
 
