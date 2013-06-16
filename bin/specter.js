@@ -84,18 +84,17 @@ specter = function() {
         },
 
         turn_off_animations: function() {
-            casper.evaluate(function() {
-                window.addEventListener('load', function(){
+            casper.on('load.finished', function() {
+                this.evaluate(function(){
                     var css = document.createElement("style");
                     css.type = "text/css";
                     css.innerHTML = "* { -webkit-transition: none !important; transition: none !important; }";
                     document.body.appendChild(css);
-
                     if(jQuery){
-                        jQuery.finish();
                         jQuery.fx.off = true;
+                        jQuery("*").finish();
                     }
-                },false);
+                });
             });
         },
 
