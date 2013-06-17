@@ -12,6 +12,7 @@ from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 EX_OK = 0
 EX_SOFTWARE = 70
+VERSION = "0.1"
 
 
 class MyHandler(SimpleHTTPRequestHandler):
@@ -80,6 +81,10 @@ PHANTOMJS_NATIVE_ARGS = [
     'web-security',
 ]
 SYS_ARGS = sys.argv[1:]
+
+if "--version" in SYS_ARGS:
+    print VERSION
+    sys.exit(0)
 
 conf = {
         'testroot': os.path.abspath('.'),
