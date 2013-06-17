@@ -34,6 +34,7 @@ clean:
 
 $(bindir)/specter:
 	@ln -s $(srcdir)/bin/specter $(bindir)/specter
+	@chmod 755 $(bindir)/specter
 
 SPECTER-exists:
 	@echo "Checking for specter...\c"
