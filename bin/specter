@@ -12,7 +12,7 @@ from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 EX_OK = 0
 EX_SOFTWARE = 70
-VERSION = "0.1"
+VERSION = "0.2"
 
 
 class MyHandler(SimpleHTTPRequestHandler):
@@ -47,12 +47,12 @@ def resolve(path):
 
 def call_casper(script, config):
     cmd = ['casperjs']
-    cmd.extend(config['phantom_args'])
+    cmd.extend(config['args']['phantom'])
     cmd.extend([
-        '--specter-path=%s' % config['path'],
-        '--baseline=%s' % config['baseline'],
-        '--diffdir=%s' % config['diff'],
-        '--faildir=%s' % config['fail'],
+        '--specter-path=%s' % config['paths']['path'],
+        '--baseline=%s' % config['paths']['baseline'],
+        '--diffdir=%s' % config['paths']['diff'],
+        '--faildir=%s' % config['paths']['fail'],
         script,
     ])
     cmd.extend(config['args'])
@@ -87,14 +87,18 @@ if "--version" in SYS_ARGS:
     sys.exit(0)
 
 conf = {
+    'paths': {
         'testroot': os.path.abspath('.'),
         'baseline': './screenshots',
         'diff': '/tmp/specter/diff',
         'fail': '/tmp/specter/fail',
-        'args': [],
-        'phantom_args': [],
         'path': os.path.abspath(os.path.join(os.path.dirname(resolve(__file__)), '..')),
-    }
+    },
+    'args': {
+        'specter': [],
+        'phantom': [],
+    },
+}
 
 rc_files = []
 cwd = os.getcwd()
@@ -111,14 +115,22 @@ while rc_files:
     with open(path) as f:
         cp = ConfigParser.SafeConfigParser()
         cp.readfp(f)
-        for k in conf.keys():
+        for k in conf['paths'].keys():
             try:
-                conf[k] = cp.get('specter', k)
-                if conf[k] != os.path.abspath(conf[k]):
-                    conf[k] = os.path.join(
+                conf['paths'][k] = cp.get('paths', k)
+                if conf['paths'][k] != os.path.abspath(conf['paths'][k]):
+                    conf['paths'][k] = os.path.join(
                             os.path.dirname(path),
-                            conf[k]
+                            conf['paths'][k]
                         )
+            except ConfigParser.NoSectionError as err:
+                pass
+            except ConfigParser.NoOptionError as err:
+                pass
+
+        for k in conf['args'].keys():
+            try:
+                conf['args'][k] = cp.get('args', k).split(" ")
             except ConfigParser.NoSectionError as err:
                 pass
             except ConfigParser.NoOptionError as err:
@@ -129,30 +141,33 @@ for arg in SYS_ARGS:
     found = False
     for native in PHANTOMJS_NATIVE_ARGS:
         if arg.startswith('--%s' % native):
-            conf['phantom_args'].append(arg)
+            conf['args']['phantom'].append(arg)
             found = True
     if not found:
         path = os.path.abspath(arg)
-        if path.find(conf['testroot']) == 0:
-            conf['args'].append(path[len(conf['testroot']) + 1:])
+        if path.find(conf['paths']['testroot']) == 0:
+            conf['args']['specter'].append(path[len(conf['paths']['testroot']) + 1:])
         else:
-            conf['args'].append(arg)
+            conf['args']['specter'].append(arg)
 
-os.chdir(conf['testroot'])
+print conf
+sys.exit(0)
+
+os.chdir(conf['paths']['testroot'])
 
 # run functional tests and gather screenshots
 p = call_casper(
-        os.path.join(conf['path'], 'bin', 'testrunner.js'), conf)
+        os.path.join(conf['paths']['path'], 'bin', 'testrunner.js'), conf)
 
 sts = p.wait()
 
 if sts == EX_OK:
     # compare the screen captures
-    server = TestServer(os.path.join(conf['path'], 'resemble'))
+    server = TestServer(os.path.join(conf['paths']['path'], 'resemble'))
     server.start()
     time.sleep(1)
     p = call_casper(
-            os.path.join(conf['path'], 'bin', 'compare.js'), conf)
+            os.path.join(conf['paths']['path'], 'bin', 'compare.js'), conf)
     sts = p.wait()
     server.stop()
 

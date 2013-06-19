@@ -248,6 +248,7 @@ function _onComplete(tests, noOfFails, noOfErrors){
     } else {
         // non-verbose, console-friendly test results
         console.log('');
+        console.log(tests.length + ' comparisons run.');
         if (noOfFails > 0) {
             var e = noOfErrors + ' error' + (noOfErrors == 1 ? ' ' : 's.');
             var f = noOfFails + ' failure' + (noOfFails == 1 ? ' ' : 's.');
@@ -258,7 +259,7 @@ function _onComplete(tests, noOfFails, noOfErrors){
                 }
             });
         } else {
-            casper.echo('SUCCESS.', 'GREEN_BAR', 80);
+            casper.echo('SUCCESS. 0 failures.', 'GREEN_BAR', 80);
         }
     }
 }
