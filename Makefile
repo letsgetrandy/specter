@@ -6,7 +6,7 @@ srcdir = $(CURDIR)
 found_location = $(shell which specter)
 found_version = $(shell specter --version)
 expected_location = $(bindir)/specter
-expected_version = 0.1
+expected_version = 0.2
 
 
 all:
