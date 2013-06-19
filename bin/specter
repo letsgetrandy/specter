@@ -56,7 +56,7 @@ def call_casper(script, config):
         script,
     ])
     cmd.extend(config['args'])
-    return subprocess.Popen(cmd, cwd=config['testroot'])
+    return subprocess.Popen(cmd, cwd=config['paths']['testroot'])
 
 
 PHANTOMJS_NATIVE_ARGS = [
@@ -150,16 +150,17 @@ for arg in SYS_ARGS:
         else:
             conf['args']['specter'].append(arg)
 
-print conf
-sys.exit(0)
-
 os.chdir(conf['paths']['testroot'])
 
-# run functional tests and gather screenshots
-p = call_casper(
-        os.path.join(conf['paths']['path'], 'bin', 'testrunner.js'), conf)
+sts = EX_OK
+if "--skip-capture" not in conf['args']['specter']:
+    # run functional tests and gather screenshots
+    p = call_casper(
+            os.path.join(conf['paths']['path'], 'bin', 'testrunner.js'), conf)
 
-sts = p.wait()
+    sts = p.wait()
+    if "--ignore-failed-tests" in conf['args']['specter']:
+        sts = EX_OK
 
 if sts == EX_OK:
     # compare the screen captures
