@@ -13,7 +13,7 @@ all:
 	@echo "Nothing to do.\n"
 	@echo "Did you mean to run 'make install'?\n"
 
-install: PHANTOMJS CASPERJS PYTHON $(bindir)/specter installcheck
+install: PHANTOMJS CASPERJS PYTHON $(bindir)/specter installcheck update
 
 installcheck: SPECTER-exists
 	@echo "Checking for specter in the path...\c"
@@ -30,7 +30,7 @@ uninstall:
 	rm $(srcdir)/specter
 
 update:
-	@echo "Inspecting .specterrc files"
+	@echo "Updating .specterrc files"
 	@find ~ -type f -name '.specterrc' -exec python $(srcdir)/bin/update_rc_files.py {} \;
 
 clean:
