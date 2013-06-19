@@ -29,6 +29,10 @@ endif
 uninstall:
 	rm $(srcdir)/specter
 
+update:
+	@echo "Inspecting .specterrc files"
+	@find ~ -type f -name '.specterrc' -exec python $(srcdir)/bin/update_rc_files.py {} \;
+
 clean:
 	@echo "Nothing to clean."
 
