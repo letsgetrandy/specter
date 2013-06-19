@@ -8,3 +8,4 @@ baseline = screenshots
 [args]
 #specter = "args to pass to specter/casper"
 #phantom = "args to pass to phantomjs"
+
