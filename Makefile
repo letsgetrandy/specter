@@ -31,7 +31,7 @@ uninstall:
 
 update:
 	@echo "Updating .specterrc files"
-	@find ~ -type f -name '.specterrc' -exec python $(srcdir)/bin/update_rc_files.py {} \;
+	@find ~ -type f -name '.specterrc' -print0 | xargs -0 python $(srcdir)/bin/update_rc_files.py
 
 clean:
 	@echo "Nothing to clean."
