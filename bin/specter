@@ -55,7 +55,8 @@ def call_casper(script, config):
         '--faildir=%s' % config['paths']['fail'],
         script,
     ])
-    cmd.extend(config['args'])
+    cmd.extend(config['args']['phantom'])
+    cmd.extend(config['args']['specter'])
     return subprocess.Popen(cmd, cwd=config['paths']['testroot'])
 
 
@@ -85,6 +86,7 @@ SYS_ARGS = sys.argv[1:]
 if "--version" in SYS_ARGS:
     print VERSION
     sys.exit(0)
+
 
 conf = {
     'paths': {
@@ -146,9 +148,13 @@ for arg in SYS_ARGS:
     if not found:
         path = os.path.abspath(arg)
         if path.find(conf['paths']['testroot']) == 0:
-            conf['args']['specter'].append(path[len(conf['paths']['testroot']) + 1:])
+            path = path.replace(conf['paths']['testroot'], "")
+            if len(path) == 0:
+                path = "."
+            conf['args']['specter'].append(path)
         else:
             conf['args']['specter'].append(arg)
+
 
 os.chdir(conf['paths']['testroot'])
 
