@@ -15,35 +15,32 @@ The problem with functional UI tests is that they make assertions on HTML markup
 
 Specter requires [CasperJS](http://github.com/n1k0/casperjs), which can be installed on Mac via Homebrew (`brew install casperjs`) or installed manually on any other system by cloning the repo.
 
-To use Specter, just clone this repo and then link `bin/specter` into your path and make it executable. Eg:
+To use Specter, just clone this repo and run `make install` to link the binary into your path and make it executable.
 
 ```
-# local
-$ ln -s bin/specter ~/bin/specter && chmod 755 ~/bin/specter
-
-OR
-
-# global
-$ sudo ln -s bin/specter /usr/local/bin/specter && chmod 755 /usr/local/bin/specter
+$ git clone https://github.com/letsgetrandy/specter.git
+$ cd specter
+$ make install
 ```
 
 ## Usage
 
 Check out the [demo](http://github.com/letsgetrandy/specter/tree/master/demo) for a full working example (run `specter demo` from the command line).
 
+### Getting screenshots
+
 Specter adds a global `specter` object to your casper tests, with a `screenshot()` method which requires two parameters:
 
-```
-specter.screenshot(String css_selector, String file_name)
+```javascript
+specter.screenshot(css_selector, file_name);
 
-    css_selector:  A selector to define what you want to capture
-    file_name   :  A descriptor to use when saving the screenshot
+  // css_selector:  String. A selector to define what you want to capture
+  // file_name   :  String. A descriptor to use when saving the screenshot
 ```
 
 Just write your [casper functional tests](http://casperjs.org/testing.html) as normal, but have specter capture screenshots as you go.
 
 ```javascript
-
 /* global casper:false */
 
 casper
@@ -60,8 +57,9 @@ casper
 .run(function(){
     this.test.done(0);
 });
-
 ```
+
+### Comparing
 
 Specter will compare the after the functional tests have finished. Just invoke your tests by calling `specter` rather than `casperjs`.
 
@@ -84,6 +82,15 @@ $ specter tests
 ```
 
 
+### Options
+
+**--no-color** disables Casper's hideous command-line color scheme
+
+**--ignore-failed-tests** forces Specter to run image comparisons even if the functional tests finished with errors.
+
+**--skip-capture** skips the functional tests and image capture step, and only runs the comparison step against previously collected diffs.
+
+
 ## Workflow
 
 * Define what screenshots you need in your regular tests
@@ -95,15 +102,42 @@ $ specter tests
 
 ## Configuration
 
-```
+Specter follows standard .rc file behavior.
+
+* Global defaults can be set in `/etc/specterrc`
+* User-level settings can be set in `~/.specterrc`
+* Project-level settings can be set within the project in a `.specterrc` file in the current working directory, or any directory above it.
+
+```bash
 $ cat .specterrc
 
-[specter]
+[paths]
 testroot = static/styles/tests
 baseline = static/styles/screenshots
 diff = /tmp/specter/diff
 fail = /tmp/specter/fail
+
+[args]
+specter = "--args --to --pass --to --specter/casper"
+phantom = "--args --to --pass --to --phantomjs"
 ```
+
+**paths.testroot** is the folder that contains all the test files to run
+
+**paths.baseline** is the directory in which baseline screen captures should be stored
+
+**paths.diff** is where diff images are stored for comparison later
+
+**paths.fail** is where failure images are stored
+
+**args.specter** are command-line arguments to always pass to specter and/or casper
+
+**args.phantom** are command-line arguments to always pass to phantomjs
+
+
+_Please note that relative paths in .specterrc files are relative to that file._
+
+_v-0.2 note: the "specter" section in the rc files has been replaced by "paths" and "args" sections._
 
 
 ## Demo
