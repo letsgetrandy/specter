@@ -71,7 +71,9 @@ function initRunner() {
     });
 
     fs.removeTree(casper.specter.diffbase);
-    fs.removeTree(casper.specter.failbase);
+    if (!casper.specter.rebase) {
+        fs.removeTree(casper.specter.failbase);
+    }
 }
 
 var error;
