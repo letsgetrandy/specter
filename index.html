@@ -1,0 +1,172 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Specter</title>
+  <meta name="description" content="Visual/CSS regression testing with PhantomJS">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Specter</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">Visual/CSS regression testing with PhantomJS</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/letsgetrandy/specter/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/letsgetrandy/specter/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/letsgetrandy/specter" class="code">View Specter on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <p>Specter adds <a href="http://huddle.github.com/Resemble.js/">Resemble.js</a> image comparison functionality to <a href="http://github.com/n1k0/casperjs">CasperJS</a> testing and navigation framework for <a href="http://github.com/ariya/phantomjs/">PhantomJS</a>, in order to produce automated visual regression testing.</p>
+
+<h3>
+<a name="why" class="anchor" href="#why"><span class="octicon octicon-link"></span></a>Why?</h3>
+
+<p>The problem with functional UI tests is that they make assertions on HTML markup, not the actual rendering. You can't know through automated tests if something has visually broke, too much margin, disabled state etc.  This situation is exacerbated by the increasing use of CSS3 for visual state changes that were traditionally built with JavaScript and DOM manipulation, ':target' pseudoclass or keyframes for example. Read more on Huddle's Engineering blog: <a href="http://tldr.huddle.com/blog/css-testing/">CSS Regression Testing</a>.</p>
+
+<h3>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h3>
+
+<p>Specter requires <a href="http://github.com/n1k0/casperjs">CasperJS</a>, which can be installed on Mac via Homebrew (<code>brew install casperjs</code>) or installed manually on any other system by cloning the repo.</p>
+
+<p>To use Specter, just clone this repo and then link <code>bin/specter</code> into your path and make it executable. Eg:</p>
+
+<pre><code># local
+$ ln -s bin/specter ~/bin/specter &amp;&amp; chmod 755 ~/bin/specter
+
+OR
+
+# global
+$ sudo ln -s bin/specter /usr/local/bin/specter &amp;&amp; chmod 755 /usr/local/bin/specter
+</code></pre>
+
+<h3>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<p>Check out the <a href="http://github.com/letsgetrandy/specter/tree/master/demo">demo</a> for a full working example (run <code>specter demo</code> from the command line).</p>
+
+<p>Specter adds a global <code>specter</code> object to your casper tests, with a <code>screenshot()</code> method which requires two parameters:</p>
+
+<pre><code>specter.screenshot(String css_selector, String file_name)
+
+    css_selector:  A selector to define what you want to capture
+    file_name   :  A descriptor to use when saving the screenshot
+</code></pre>
+
+<p>Just write your <a href="http://casperjs.org/testing.html">casper functional tests</a> as normal, but have specter capture screenshots as you go.</p>
+
+<div class="highlight"><pre>
+<span class="cm">/* global casper:false */</span>
+
+<span class="nx">casper</span>
+<span class="p">.</span><span class="nx">start</span><span class="p">(</span><span class="s1">'http://localhost/'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">casper</span><span class="p">.</span><span class="nx">viewport</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">600</span><span class="p">);</span>
+    <span class="nx">specter</span><span class="p">.</span><span class="nx">turn_off_animations</span><span class="p">();</span>
+    <span class="nx">specter</span><span class="p">.</span><span class="nx">screenshot</span><span class="p">(</span><span class="s2">"main &gt; .content"</span><span class="p">,</span> <span class="s2">"main"</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">test</span><span class="p">.</span><span class="nx">assertExists</span><span class="p">(</span><span class="s1">'form#login #id_username'</span><span class="p">,</span> <span class="s1">'username field'</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">test</span><span class="p">.</span><span class="nx">assertExists</span><span class="p">(</span><span class="s1">'form#login #id_password'</span><span class="p">,</span> <span class="s1">'password field'</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">thenOpen</span><span class="p">(</span><span class="s1">'http://localhost/password-reset/'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">specter</span><span class="p">.</span><span class="nx">screenshot</span><span class="p">(</span><span class="s2">"main &gt; .content"</span><span class="p">,</span> <span class="s2">"password-reset"</span><span class="p">);</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">test</span><span class="p">.</span><span class="nx">done</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">});</span>
+
+</pre></div>
+
+<p>Specter will compare the after the functional tests have finished. Just invoke your tests by calling <code>specter</code> rather than <code>casperjs</code>.</p>
+
+<p>Specter can run a single test file:</p>
+
+<div class="highlight"><pre><span class="nv">$ </span>specter tests/test-login.js
+</pre></div>
+
+<p>Or, multiple files:</p>
+
+<div class="highlight"><pre><span class="nv">$ </span>specter tests/test-login.js tests/test-homepage.js tests/test-checkout.js
+</pre></div>
+
+<p>Or, it can recursively run every test file in a specified directory:</p>
+
+<div class="highlight"><pre><span class="nv">$ </span>specter tests
+</pre></div>
+
+<h3>
+<a name="workflow" class="anchor" href="#workflow"><span class="octicon octicon-link"></span></a>Workflow</h3>
+
+<ul>
+<li>Define what screenshots you need in your regular tests</li>
+<li>Find the screenshot directory and check that they look as you expect.  These images will be used as a baseline.  Subsequent test runs will report if the latest screenshot is different to the baseline</li>
+<li>Commit/push these baseline images with your normal tests (presuming you're using a version control system)</li>
+<li>Run the tests again.  New screenshots will be created to compare against the baseline image.  These new images can be ignored, they will be replaced every test run. They don't need to be committed</li>
+<li>If there are test failures, image diffs will be generated.</li>
+</ul><h3>
+<a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h3>
+
+<pre><code>$ cat .specterrc
+
+[specter]
+testroot = static/styles/tests
+baseline = static/styles/screenshots
+diff = /tmp/specter/diff
+fail = /tmp/specter/fail
+</code></pre>
+
+<h3>
+<a name="demo" class="anchor" href="#demo"><span class="octicon octicon-link"></span></a>Demo</h3>
+
+<p>Run all demo tests simply by passing the demo directory as an argument:</p>
+
+<pre><code>$ specter demo
+</code></pre>
+
+<p>Or, run a single demo test by passing just that file as an argument:</p>
+
+<pre><code>$ specter demo/test-facebook.js
+</code></pre>
+
+<hr><p>Maintained by <a href="http://github.com/letsgetrandy">Randy Hunt</a>
+Specter is based on PhantomCSS, originally created by <a href="http://github.com/jamescryer">James Cryer</a> and the Huddle development team.</p>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/letsgetrandy" class="avatar"><img src="https://secure.gravatar.com/avatar/bfb86f4721aa0abaef297ccb8ed69aff?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" width="48" height="48"/></a> <a href="https://github.com/letsgetrandy">letsgetrandy</a> maintains <a href="https://github.com/letsgetrandy/specter">Specter</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/letsgetrandy/specter/tarball/master" class="tar">tar</a><a href="https://github.com/letsgetrandy/specter/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
+</html>
