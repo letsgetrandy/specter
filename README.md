@@ -1,6 +1,8 @@
 Specter
 =======
 
+Automated visual regression testing.
+
 Specter adds [Resemble.js](http://huddle.github.com/Resemble.js/) image comparison functionality to [CasperJS](http://github.com/n1k0/casperjs) testing and navigation framework for [PhantomJS](http://github.com/ariya/phantomjs/), in order to produce automated visual regression testing.
 
 
@@ -9,7 +11,7 @@ Specter adds [Resemble.js](http://huddle.github.com/Resemble.js/) image comparis
 The problem with functional UI tests is that they make assertions on HTML markup, not the actual rendering. You can't know through automated tests if something has visually broke, too much margin, disabled state etc.  This situation is exacerbated by the increasing use of CSS3 for visual state changes that were traditionally built with JavaScript and DOM manipulation, ':target' pseudoclass or keyframes for example. Read more on Huddle's Engineering blog: [CSS Regression Testing](http://tldr.huddle.com/blog/css-testing/).
 
 
-### Installation
+## Installation
 
 Specter requires [CasperJS](http://github.com/n1k0/casperjs), which can be installed on Mac via Homebrew (`brew install casperjs`) or installed manually on any other system by cloning the repo.
 
@@ -25,7 +27,7 @@ OR
 $ sudo ln -s bin/specter /usr/local/bin/specter && chmod 755 /usr/local/bin/specter
 ```
 
-### Usage
+## Usage
 
 Check out the [demo](http://github.com/letsgetrandy/specter/tree/master/demo) for a full working example (run `specter demo` from the command line).
 
@@ -82,7 +84,7 @@ $ specter tests
 ```
 
 
-### Workflow
+## Workflow
 
 * Define what screenshots you need in your regular tests
 * Find the screenshot directory and check that they look as you expect.  These images will be used as a baseline.  Subsequent test runs will report if the latest screenshot is different to the baseline
@@ -91,7 +93,7 @@ $ specter tests
 * If there are test failures, image diffs will be generated.
 
 
-### Configuration
+## Configuration
 
 ```
 $ cat .specterrc
@@ -104,7 +106,7 @@ fail = /tmp/specter/fail
 ```
 
 
-### Demo
+## Demo
 
 Run all demo tests simply by passing the demo directory as an argument:
 
@@ -122,4 +124,5 @@ $ specter demo/test-facebook.js
 --------------------------------------
 
 Maintained by [Randy Hunt](http://github.com/letsgetrandy)
+
 Specter is based on PhantomCSS, originally created by [James Cryer](http://github.com/jamescryer) and the Huddle development team.
