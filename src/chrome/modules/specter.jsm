@@ -7,7 +7,7 @@ Components.utils.import("resource://specter/Utils.jsm");
 Components.utils.import("resource://specter/configuration.jsm");
 Components.utils.import("resource://specter/progress_listener.jsm");
 Components.utils.import("resource://specter/imagelib.jsm");
-Components.utils.import("resource://specter/testrunner.jsm");
+Components.utils.import("resource://specter/test_results.jsm");
 
 const windowMediator =
         Components.classes["@mozilla.org/appshell/window-mediator;1"]
@@ -57,44 +57,6 @@ var parentwin, window, browser, loaded=false, pagedone=true;
 var queue=[], testName, pagesize;
 
 function capture(selector, filename) {
-/*
-    var clip;
-    var w = browser.contentWindow.wrappedJSObject;
-    var doc = w.document;
-    var el = doc.querySelector(selector);
-    if (el) {
-        clip = el.getBoundingClientRect();
-    } else {
-        log("NotFoundError: Unable to capture '" + selector + "'.");
-        return;
-    }
-
-    // create the canvas
-    var canvas = window.document.createElementNS(
-                "http://www.w3.org/1999/xhtml", "canvas");
-    canvas.width = clip.width;
-    canvas.height = clip.height;
-
-    var ctx = canvas.getContext("2d");
-    ctx.drawWindow(window.content, clip.left, clip.top,
-            clip.width, clip.height, "rgba(0,0,0,0)");
-    ctx.restore();
-
-    var content = null;
-    canvas.toBlob(function(blob) {
-        //let reader = new browser.contentWindow.FileReader();
-        let reader = new window.FileReader();
-        reader.onloadend = function() {
-            content = reader.result;
-        };
-        reader.readAsBinaryString(blob);
-    });
-
-    var thread = Services.tm.currentThread;
-    while (content === null) {
-        thread.processNextEvent(true);
-    }
-    */
     var content = imagelib.capture(window,
             browser.contentWindow.wrappedJSObject.document,
             selector, filename);
@@ -106,19 +68,19 @@ function capture(selector, filename) {
     // try to read baseline
     var baseline = null;
     if (file.exists()) {
-        baseline = imagelib.loadFile(file.path);
+        baseline = imagelib.loadImage(file.path);
     } else {
         file.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE,
-                parseInt("0755", 8));
+                parseInt('0755', 8));
     }
     if (!baseline) {
         // save new baseline
         imagelib.saveImage(content, file.path);
-        testrunner.rebase(name);
+        TestResults.rebase(name);
     } else {
         // compare
         //imagelib.compare(filename);
-        testrunner.pass(name);
+        TestResults.pass(name);
     }
     return true;
 }

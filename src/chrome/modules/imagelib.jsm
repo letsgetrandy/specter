@@ -3,7 +3,7 @@
 var EXPORTED_SYMBOLS = ["imagelib"];
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://specter/Utils.jsm");
+//Components.utils.import("resource://specter/Utils.jsm");
 Components.utils.import("resource://specter/configuration.jsm");
 Components.utils.import("resource://specter/progress_listener.jsm");
 
@@ -186,6 +186,7 @@ function compare() {
         dump('.');
         //window.close();
     }
+    //TODO: get dimensions from the screen
     let features = "chrome,dialog=no,scrollbars=yes";
         features += ",width=1000,height=500";
     window = parentwin.openDialog(
@@ -194,8 +195,16 @@ function compare() {
 }
 
 var imagelib = {
+
     capture:capture,
     compare:compare,
     loadImage:loadImage,
-    saveImage:saveImage
+    saveImage:saveImage,
+
+    __exposedProps__: {
+        capture: 'r',
+        compare: 'r',
+        loadImage: 'r',
+        saveImage: 'r'
+    }
 };

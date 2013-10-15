@@ -86,21 +86,6 @@ function process(testFile) {
     //specter.runTests();
 }
 
-function pass(file) {
-    dump('.');
-}
-
-function fail(file) {
-    dump('F');
-}
-
-function error(file) {
-    dump('E');
-}
-
-function rebase(file) {
-    dump('+');
-}
 
 var TestRunner = {
 
@@ -155,10 +140,6 @@ var TestRunner = {
 
     __exposedProps__ : {
         handleArg: 'r',
-        processFile: 'r',
-        error: error,
-        fail: fail,
-        pass: pass,
-        rebase: rebase
+        processFile: 'r'
     }
 };
