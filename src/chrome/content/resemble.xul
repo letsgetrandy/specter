@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+-->
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin/applications" type="text/css"?>
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    id="resemblewin" hidechrome="false" title="resemble"
+    windowtype="resemblepage"
+    width="400" height="300"
+    >
+    <script type="application/javascript" src="resemble.js" />
+
+    <browser id="diffpage" flex="1"
+        type="content-primary" autoscroll="true" disablesecurity="false"/>
+</window>

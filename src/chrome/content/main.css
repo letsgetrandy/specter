@@ -1,0 +1,17 @@
+#hauntedwall {
+    text-align:center;
+}
+
+#hauntedwall image {
+    transition-property: width, height, opacity;
+    transition-duration: 8s;
+    opacity:0;
+    width:10px;
+    height:10px;
+}
+
+#hauntedwall:hover image {
+    opacity:0.5;
+    width:100px;
+    height:100px;
+}
