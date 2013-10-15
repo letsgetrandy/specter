@@ -56,38 +56,53 @@ Services.prefs.setBoolPref('browser.dom.window.dump.enabled', true);
 var parentwin, window, browser, loaded=false, pagedone=true;
 var queue=[], testName, pagesize;
 
+// convenience function
+function $(selector) {
+    var doc = browser.contentWindow.wrappedJSObject.document;
+    return doc.querySelector(selector);
+}
+
+// capture an element, given its selector
 function capture(selector, filename) {
-    var content = imagelib.capture(window,
-            browser.contentWindow.wrappedJSObject.document,
-            selector, filename);
 
     var name = testName + '-' + filename + '-' + pagesize;
     var file = currentWorkingDirectory.clone();
     file.append(name + '.png');
+    var exists = file.exists();
+
+    var clip,
+        el = $(selector);
+    if (el) {
+        clip = el.getBoundingClientRect();
+    } else {
+        log("NotFoundError: Unable to capture '" + selector + "'.");
+        return;
+    }
+    // capture the image data
+    var content = imagelib.capture(window, clip, exists ? null : file);
 
     // try to read baseline
     var baseline = null;
-    if (file.exists()) {
-        baseline = imagelib.loadImage(file.path);
-    } else {
-        file.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE,
-                parseInt('0755', 8));
+    if (exists) {
+        var blob = File(file);
+        baseline = imagelib.createImage(blob);
     }
     if (!baseline) {
-        // save new baseline
-        imagelib.saveImage(content, file.path);
         TestResults.rebase(name);
     } else {
         // compare
-        //imagelib.compare(filename);
-        TestResults.pass(name);
+        let diff = imagelib.compare(content, baseline);
+        if (diff) {
+            let out = currentWorkingDirectory.clone();
+            out.append(name + '-diff.png');
+            imagelib.saveCanvas(diff, out);
+            //window.document.append(diff);
+            TestResults.fail(name);
+        } else {
+            TestResults.pass(name);
+        }
     }
     return true;
-}
-
-function done() {
-    window.close();
-    pagedone = true;
 }
 
 function exit(code) {
@@ -101,7 +116,6 @@ function log(s) {
 }
 
 function open(uri, callback) {
-    //log("open " + uri);
     loaded = false;
     pagedone = false;
 
@@ -217,8 +231,6 @@ var specter = {
         return configuration;
     },
 
-    done: done,
-
     exit: exit,
 
     log: log,
@@ -266,7 +278,6 @@ var specter = {
         capture: 'r',
         config: 'r',
         debug: 'r',
-        done: 'r',
         exit: 'r',
         log: 'r',
         open: 'r',
