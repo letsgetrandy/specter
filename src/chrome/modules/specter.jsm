@@ -25,9 +25,6 @@ const timer =
         Components.classes["@mozilla.org/timer;1"]
                 .createInstance(Components.interfaces.nsITimer);
 
-var currentWorkingDirectory =
-        dirsvc.get("CurWorkD", Components.interfaces.nsIFile);
-
 
 var [major, minor, patch] = xulAppInfo.version.split('.');
 var _version = {
@@ -54,7 +51,7 @@ function checkInt(val) {
 Services.prefs.setBoolPref('browser.dom.window.dump.enabled', true);
 
 var parentwin, window, browser, loaded=false, pagedone=true;
-var queue=[], testName, pagesize;
+var queue=[], testFile, testName, pagesize;
 
 // convenience function
 function $(selector) {
@@ -65,11 +62,7 @@ function $(selector) {
 // capture an element, given its selector
 function capture(selector, filename) {
 
-    var name = testName + '-' + filename + '-' + pagesize;
-    var file = currentWorkingDirectory.clone();
-    file.append(name + '.png');
-    var exists = file.exists();
-
+    // find the element on screen or exit
     var clip,
         el = $(selector);
     if (el) {
@@ -78,31 +71,57 @@ function capture(selector, filename) {
         log("NotFoundError: Unable to capture '" + selector + "'.");
         return;
     }
-    // capture the image data
-    var content = imagelib.capture(window, clip, exists ? null : file);
 
-    // try to read baseline
-    var baseline = null;
-    if (exists) {
-        var blob = File(file);
-        baseline = imagelib.createImage(blob);
+    if (!configuration.workingDirectory.contains(testFile, false)) {
+        // TODO: something better than cussing here...
+        log('what the fuck?');
+        exit();
     }
-    if (!baseline) {
-        TestResults.rebase(name);
-    } else {
-        // compare
-        let diff = imagelib.compare(content, baseline);
+    // determine the relative path to the test file from the base dir
+    let _dirs = [], _testfile = testFile.parent.clone();
+    while (!_testfile.equals(configuration.workingDirectory)) {
+        _dirs.unshift(_testfile.leafName);
+        _testfile = _testfile.parent;
+    }
+
+    // build the name of the capture file
+    var capture_name = [testName, filename, pagesize].join('-');
+
+    // determine the expected location of the baseline image
+    var baseline = configuration.baseline.clone();
+    for (let i=0; i<_dirs.length; i++) {
+        baseline.append(_dirs[i]);
+    }
+    baseline.append(capture_name + '.png');
+
+    if (configuration.rebase) {
+        baseline.remove(false);
+    }
+
+    if (baseline.exists()) {
+        // capture and compare
+        let content = imagelib.capture(window, clip, null);
+        let blob = File(baseline);
+        basedata = imagelib.createImage(blob);
+        let diff = imagelib.compare(content, basedata);
         if (diff) {
-            let out = currentWorkingDirectory.clone();
-            out.append(name + '-diff.png');
-            imagelib.saveCanvas(diff, out);
+            let diffFile = configuration.diffdir.clone();
+            for (let i=0; i<_dirs.length; i++) {
+                diffFile.append(_dirs[i]);
+            }
+            diffFile.append(capture_name + '-diff.png');
+            imagelib.saveCanvas(diff, diffFile);
             //window.document.append(diff);
-            TestResults.fail(name);
+            TestResults.fail(capture_name);
         } else {
-            TestResults.pass(name);
+            TestResults.pass(capture_name);
         }
+    } else {
+        // capture and save
+        var content = imagelib.capture(window, clip, baseline);
+        TestResults.rebase(capture_name);
     }
-    return true;
+    return;
 }
 
 function exit(code) {
@@ -252,8 +271,10 @@ var specter = {
     },
 
     setTestFile: function(file) {
+        testFile = file;
         testName = file.leafName.replace(/(^test[_\-])|(\.js$)/g, '');
-        currentWorkingDirectory = file.parent;
+        //TODO
+        //currentWorkingDirectory = file.parent;
     },
 
     get version() {
@@ -283,6 +304,7 @@ var specter = {
         open: 'r',
         ready: 'r',
         runTests: 'r',
+        setTestFile: 'r',
         test: 'r',
         testName: 'rw',
         turn_off_animations: 'r',

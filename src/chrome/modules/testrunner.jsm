@@ -15,7 +15,6 @@ const httphandler =
         Components.classes["@mozilla.org/network/protocol;1?name=http"]
                 .getService(Components.interfaces.nsIHttpProtocolHandler);
 
-
 const timer =
         Components.classes["@mozilla.org/timer;1"]
                 .createInstance(Components.interfaces.nsITimer);
@@ -30,7 +29,7 @@ function waitQueue() {
             process(next);
         } else {
             timer.cancel();
-            //specter.exit();
+            specter.exit();
         }
     }
 }
@@ -92,6 +91,9 @@ var TestRunner = {
     handleArg: function(filename) {
         var testfile = null,
             dir = configuration.workingDirectory;
+        //for (var i=0; i<validoptions.length; i++) {
+        //}
+
         try {
             testfile = Utils.getAbsMozFile(filename, dir);
 
@@ -116,6 +118,10 @@ var TestRunner = {
         }
 
         if (testfile.isDirectory()) {
+
+            // set our base directory from here
+            configuration.basedir.initWithPath(testfile.path);
+
             // recursively loop directory and process files
             Utils.recurse(testfile, function(iFile, isDir) {
                 if (isDir) {
@@ -129,6 +135,7 @@ var TestRunner = {
         } else {
             // add file to queue
             if (/\.js$/.test(testfile.path)) {
+                configuration.basedir.initWithPath(testfile.parent.path);
                 files.push(testfile.path);
             }
         }

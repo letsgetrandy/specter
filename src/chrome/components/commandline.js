@@ -67,7 +67,6 @@ CommandLine.prototype = {
             return;
         }
 
-        //dump("cmdline: " + cmdLine + "\n");
 
         let argc = cmdLine.length,
             argv = [];
@@ -76,7 +75,6 @@ CommandLine.prototype = {
         if (environment.exists('SPECTER_ARGS')) {
             realArgs = environment.get('SPECTER_ARGS');
         }
-        //dump('real args: "' + realArgs + '"\n');
 
         for (let i=0; i<argc; i++) {
             let arg = cmdLine.getArgument(i);
@@ -86,10 +84,11 @@ CommandLine.prototype = {
                 if (result) {
                     if (result[1]) {
                         i++;
-                        configuration.args.push('-' + arg + '=' +
+                        configuration.opts.push('-' + arg + '=' +
                                 cmdLine.getArgument(i));
+                        //configuration.opts.push('-' + arg
                     } else {
-                        configuration.args.push('-' + arg);
+                        configuration.opts.push('-' + arg);
                     }
                 } else {
                     configuration.args.push(arg);
@@ -100,7 +99,6 @@ CommandLine.prototype = {
         }
         cmdLine.removeArguments(0, argc - 1);
 
-        //dump(configuration.args.join(',') + '\n');
 
         /*
          * TODO: superfluous

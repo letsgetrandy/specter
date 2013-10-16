@@ -343,7 +343,9 @@ function compare(data, canvas) {
 //                //
 //            } else {
                 // unmatched pixel
-                rgba(d3, offset, 180, 20, 20, 200);
+                rgba(d3, offset, 180, 20, 20, 160);
+                //rgba(d3, offset, 255, 255, 0, 255);
+                //rgba(d3, offset, 255, 120, 0, 255);
                 pixdiff++;
 //            }
         }
