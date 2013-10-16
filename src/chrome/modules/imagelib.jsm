@@ -3,7 +3,6 @@
 var EXPORTED_SYMBOLS = ["imagelib"];
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://specter/Utils.jsm");
 Components.utils.import("resource://specter/configuration.jsm");
 Components.utils.import("resource://specter/progress_listener.jsm");
 

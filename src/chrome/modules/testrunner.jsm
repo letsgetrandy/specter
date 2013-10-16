@@ -3,7 +3,6 @@
 var EXPORTED_SYMBOLS = ["TestRunner"];
 
 
-Components.utils.import("resource://specter/utils.jsm");
 Components.utils.import("resource://specter/specter.jsm");
 Components.utils.import("resource://specter/configuration.jsm");
 
@@ -29,7 +28,9 @@ function waitQueue() {
             process(next);
         } else {
             timer.cancel();
-            specter.exit();
+            if (!configuration.debug) {
+                specter.exit();
+            }
         }
     }
 }
@@ -80,11 +81,57 @@ function process(testFile) {
         wantXrays: true
     });
 
-    var src = Utils.readFile(file);
+    var src = readFile(file);
     Components.utils.evalInSandbox(src, sandbox);
     //specter.runTests();
 }
 
+function readFile(file) {
+
+    let fstream =
+        Components.classes["@mozilla.org/network/file-input-stream;1"]
+            .createInstance(Components.interfaces.nsIFileInputStream);
+    let cstream =
+        Components.classes["@mozilla.org/intl/converter-input-stream;1"]
+            .createInstance(Components.interfaces.nsIConverterInputStream);
+    fstream.init(file, -1, 0, 0);
+    cstream.init(fstream, "UTF-8", 0, 0);
+    let data = '';
+    let (str = {}) {
+        let read = 0;
+        do {
+            // read as much as we can and put it in str.value
+            read = cstream.readString(0xffffffff, str);
+            data += str.value;
+        } while (read !== 0);
+    }
+    cstream.close(); // this closes fstream
+    return data;
+}
+
+// iterate a directory, and recurse into contained directories
+// @param nsIFile  file entry
+// @param function callback
+function recurse(iFile, callback) {
+    var items = iFile.directoryEntries;
+    while (items.hasMoreElements()) {
+        let item = items.getNext().QueryInterface(
+                    Components.interfaces.nsIFile);
+        if (item.leafName === "." || item.leafName === "..") {
+            return;
+        }
+        //let f = item.clone().append
+        if (item.exists() && item.isDirectory()) {
+            if (callback(item, true)) {
+                recurse(item, callback);
+            }
+        } else {
+            if (item.isFile()) {
+                callback(item, false);
+            }
+        }
+    }
+}
 
 var TestRunner = {
 
@@ -95,7 +142,16 @@ var TestRunner = {
         //}
 
         try {
-            testfile = Utils.getAbsMozFile(filename, dir);
+            //testfile = Components.classes['@mozilla.org/file/local;1']
+            //        .createInstance(Components.interfaces.nsILocalFile);
+            //testfile.initWithPath(filename);
+            var f = filename;
+            if (f.charAt(0) !== '/') {
+                f = configuration.workingDirectory.path + '/' + f;
+            }
+            testfile = dir.clone();
+            testfile.initWithPath(f);
+
 
             //if (/Mac/i.test(httphandler.oscpu)) {
                 // under MacOS, resolveFile failes with a relative path
@@ -119,11 +175,8 @@ var TestRunner = {
 
         if (testfile.isDirectory()) {
 
-            // set our base directory from here
-            configuration.basedir.initWithPath(testfile.path);
-
             // recursively loop directory and process files
-            Utils.recurse(testfile, function(iFile, isDir) {
+            recurse(testfile, function(iFile, isDir) {
                 if (isDir) {
                     return true;
                 } else {
@@ -135,7 +188,6 @@ var TestRunner = {
         } else {
             // add file to queue
             if (/\.js$/.test(testfile.path)) {
-                configuration.basedir.initWithPath(testfile.parent.path);
                 files.push(testfile.path);
             }
         }

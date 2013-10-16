@@ -17,6 +17,14 @@ function startup() {
     try {
 
         configuration.init();
+        if (configuration.debug) {
+            dump('baseline = ' + configuration.baseline.path + '\n');
+            dump('testroot = ' + configuration.testroot.path + '\n');
+            dump('diffdir = ' + configuration.diffdir.path + '\n');
+        }
+        if (configuration.notests) {
+            specter.exit();
+        }
 
         var argv = specter.config.args,
             argc = argv.length;
@@ -35,7 +43,6 @@ function startup() {
         //dumpStack(ex.stack);
         //Services.startup.quit(Components.interfaces.nsIAppStartup.eForceQuit);
     }
-    //specter.exit();
 }
 
 function doFileRun() {

@@ -8,7 +8,6 @@ const CLASS_NAME = 'Specter command-line handler';
 
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://specter/utils.jsm");
 Components.utils.import("resource://specter/configuration.jsm");
 
 

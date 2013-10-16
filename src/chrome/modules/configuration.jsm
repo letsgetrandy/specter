@@ -20,10 +20,7 @@ const tempDirectory =
 
 var diffdir = tempDirectory.clone();
 var baseline = currentWorkingDirectory.clone();
-var basedir = currentWorkingDirectory.clone();
-
-                //Components.classes["@mozilla.org/file/local;1"]
-                //    .createInstance();
+var testroot = currentWorkingDirectory.clone();
 
 
 function init() {
@@ -37,7 +34,7 @@ function init() {
             setflag(m[1]);
         }
     }
-    //findIniFiles();
+    findIniFiles();
 
     // check env
 
@@ -59,105 +56,136 @@ function setopt(k, v) {
             }
             diffdir.initWithPath(v);
             break;
+        case 'testroot':
+            if (v.charAt(0) !== '/') {
+                v = currentWorkingDirectory.path + '/' + v;
+            }
+            testroot.initWithPath(v);
+            break;
     }
 }
 
 function setflag(k) {
     switch (k) {
-        case 'ignore-errors':
+        case 'd':
+        case 'debug':
+            configuration.debug = true;
+            break;
+        case 'notests':
+            configuration.notests = true;
             break;
         case 'rebase':
             configuration.rebase = true;
             break;
+        case 'v':
+        case 'verbose':
+            configuration.verbose = true;
+            break;
     }
 }
-/*
+
 function findIniFiles() {
     var dir = currentWorkingDirectory.clone();
     var rcfiles = [];
     while (dir.parent) {
-        dump("dir: " + dir.path + "\n");
-        var file = dir.clone();
+        let file = dir.clone();
         file.append('.specterrc');
         if (file.exists()) {
             rcfiles.push(file.path);
         }
         dir = dir.parent;
     }
+    //dump("rc files:\n- " + rcfiles.join("\n- ") + "\n");
     while (rcfiles.length) {
-        var f = rcfiles.pop();
-        dump("f: " + f + "\n");
-        readOpts(file);
+        let path = rcfiles.pop();
+        readOpts(path);
     }
-    dump(rcfiles.join("\n") + "\n");
 }
 
-function readOpts(file) {
-    dump("inifile: " + file + "\n");
-    var factory = Components.manager.getClassObjectByContractID(
-            "@mozilla.org/xpcom/ini-parser-factory;1",
-                Components.interfaces.nsIINIParserFactory);
-    dump("factory: " + factory + "\n");
-    var iniParser = factory.createINIParser(file);
-}
-/*
-function getIniValue(iniFile, section, prop) {
-    var factory = Components.manager.getClassObjectByContractID(
-            "@mozilla.org/xpcom/ini-parser-factory;1",
-                Components.interfaces.nsIINIParserFactory);
-    dump("inifile: " + iniFile + "\n");
-    var iniParser = factory.createINIParser(iniFile);
-    try {
-        return iniParser.getString(section.prop);
-    } catch(ex) {
-        return undefined;
+// parse all setting in .specterrc file, regardless of [section] name
+// @param string path
+function readOpts(path) {
+    var file =
+        Components.classes['@mozilla.org/file/local;1']
+            .createInstance(Components.interfaces.nsILocalFile);
+    file.initWithPath(path);
+    var lines = readTextFile(file).split(/\n/);
+    //dump(path + ' has ' + lines.length + ' lines.');
+
+    var comment = /^\s*#/,
+        setting = /^\s*([^=\s]+)\s*=\s*([^\s]+)/,
+        flag    = /^\s*([^=\s]+)/;
+    for (let i=0; i<lines.length; i++) {
+        if (comment.test(lines[i])) {
+            continue;
+        }
+        var m = lines[i].match(setting);
+        if (m) {
+            //dump("setting '" + m[1] + "' == '" + m[2] + "'\n");
+            setopt(m[1], m[2]);
+        } else if (m = lines[i].match(flag)) {
+            setflag(m[1]);
+        }
     }
 }
-*/
+
+function readTextFile(file) {
+    var charset = 'UTF-8';
+    var fs =
+        Components.classes['@mozilla.org/network/file-input-stream;1']
+            .createInstance(Components.interfaces.nsIFileInputStream);
+    //dump('loading file: ' + file.path + '\n');
+    fs.init(file, 1, 0, false);
+    var converter =
+        Components.classes['@mozilla.org/intl/converter-input-stream;1']
+            .createInstance(Components.interfaces.nsIConverterInputStream);
+    converter.init(fs, charset, fs.available(),
+            converter.DEFAULT_REPLACEMENT_CHARACTER);
+    var out = {};
+    converter.readString(fs.available(), out);
+    var contents = out.value;
+    converter.close();
+    fs.close();
+    return contents;
+}
+
 
 var configuration = {
 
     args: [],
-    ignoreSSLErrors: false,
+    debug: false,
     init: init,
-    logFile: 'foo',
+    notests: false,
     opts: [],
     rebase: false,
-    scriptFile: '',
     testFiles: [],
-    get basedir() {
-        return basedir;
-    },
+    verbose: false,
+
     get baseline() {
         return baseline;
     },
     get diffdir() {
         return diffdir;
     },
+    get testroot() {
+        return testroot;
+    },
     get workingDirectory() {
         return currentWorkingDirectory;
     },
 
-    handleFlags: function(foo) {
-        //bar
-    },
-    setEnvNames: function(foo) {
-        //bar
-    },
-
     __exposedProps__ : {
         args: 'rw',
-        basedir: 'r',
         baseline: 'r',
+        debug: 'rw',
         diffdir: 'rw',
-        ignoreSSLErrors: 'rw',
         init: 'r',
-        logFile: 'rw',
+        notests: 'rw',
         opts: 'r',
         rebase: 'rw',
-        scriptFile: 'rw',
-        setEnvNames: 'r',
         testFiles: 'rw',
+        testroot: 'r',
+        verbose: 'rw',
         workingDirectory: 'r'
     }
 };

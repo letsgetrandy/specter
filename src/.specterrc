@@ -1,0 +1,6 @@
+[paths]
+baseline = baseline
+testroot = tests
+
+[flags]
+debug

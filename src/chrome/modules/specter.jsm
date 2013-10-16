@@ -3,7 +3,6 @@
 var EXPORTED_SYMBOLS = ["specter"];
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://specter/Utils.jsm");
 Components.utils.import("resource://specter/configuration.jsm");
 Components.utils.import("resource://specter/progress_listener.jsm");
 Components.utils.import("resource://specter/imagelib.jsm");
@@ -44,9 +43,6 @@ function checkInt(val) {
     return v;
 }
 
-//var libPath = slConfiguration.scriptFile.parent.clone();
-//var errorHandler;
-//var defaultSettings = null;
 
 Services.prefs.setBoolPref('browser.dom.window.dump.enabled', true);
 
@@ -72,14 +68,13 @@ function capture(selector, filename) {
         return;
     }
 
-    if (!configuration.workingDirectory.contains(testFile, false)) {
-        // TODO: something better than cussing here...
-        log('what the fuck?');
+    if (!configuration.testroot.contains(testFile, false)) {
+        log('ConfigError: Test files are not within "testroot".');
         exit();
     }
     // determine the relative path to the test file from the base dir
     let _dirs = [], _testfile = testFile.parent.clone();
-    while (!_testfile.equals(configuration.workingDirectory)) {
+    while (!_testfile.equals(configuration.testroot)) {
         _dirs.unshift(_testfile.leafName);
         _testfile = _testfile.parent;
     }
@@ -273,8 +268,6 @@ var specter = {
     setTestFile: function(file) {
         testFile = file;
         testName = file.leafName.replace(/(^test[_\-])|(\.js$)/g, '');
-        //TODO
-        //currentWorkingDirectory = file.parent;
     },
 
     get version() {
