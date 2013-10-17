@@ -4,7 +4,7 @@ You can check out the [contribution graphs on github](https://github.com/letsget
 
 ```
 $ git shortlog -s -n | cut -c8-
-Randy "Big Game" Hunt
+Randy Hunt
 James Cryer
 Simon Madine
 Harold Dennison
