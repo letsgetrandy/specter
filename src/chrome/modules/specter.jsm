@@ -107,7 +107,7 @@ function capture(selector, filename) {
             diffFile.append(capture_name + '-diff.png');
             imagelib.saveCanvas(diff, diffFile);
             //window.document.append(diff);
-            TestResults.fail(capture_name);
+            TestResults.fail(_dirs.join('/') + '/' + capture_name + '-diff.png');
         } else {
             TestResults.pass(capture_name);
         }

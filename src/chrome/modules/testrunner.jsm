@@ -5,6 +5,7 @@ var EXPORTED_SYMBOLS = ["TestRunner"];
 
 Components.utils.import("resource://specter/specter.jsm");
 Components.utils.import("resource://specter/configuration.jsm");
+Components.utils.import("resource://specter/test_results.jsm");
 
 const principal =
         Components.classes['@mozilla.org/systemprincipal;1']
@@ -28,6 +29,7 @@ function waitQueue() {
             process(next);
         } else {
             timer.cancel();
+            summary();
             if (!configuration.debug) {
                 specter.exit();
             }
@@ -41,6 +43,7 @@ function process(testFile) {
     file.initWithPath(testFile);
 
     //specter.testName = file.leafName.replace(/(^test[_\-])|(\.js$)/g, '');
+    TestResults.addTestFile(testFile);
     specter.setTestFile(file);
 
     var sandbox = Components.utils.Sandbox(principal, {
@@ -131,6 +134,22 @@ function recurse(iFile, callback) {
             }
         }
     }
+}
+
+function summary() {
+    specter.log('');
+    if (TestResults.failCount) {
+        specter.log('\n===================\n' +
+                    '   Test failures   \n'+
+                    '===================\n' +
+                    TestResults.failedTests.join('\n'));
+    }
+    var out = [];
+    out.push(TestResults.passCount + ' passed');
+    out.push(TestResults.newCount + ' rebased');
+    out.push(TestResults.failCount + ' failed');
+    specter.log('\n' + TestResults.testCount + ' images captured in ' +
+            TestResults.fileCount + ' files.\n' + out.join(', ') + '.');
 }
 
 var TestRunner = {
