@@ -28,13 +28,14 @@ Specter is a XUL application, so it needs Firefox or XULRunner in order to work.
 
 ## Installation
 
-To use Specter, just clone this repo and run `make install` to link the binary
-into your path and make it executable.
+To use Specter, just clone this repo and run `make` and `sudo make install`
+to link the binary into your path and make it executable.
 
 ```
 $ git clone https://github.com/letsgetrandy/specter.git
 $ cd specter
-$ make install
+$ make
+$ sudo make install
 ```
 
 ## Usage
