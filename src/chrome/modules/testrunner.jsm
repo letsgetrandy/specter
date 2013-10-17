@@ -73,6 +73,9 @@ function process(testFile) {
             "test": function(sizes, fn) {
                 specter.test(sizes, fn);
             },
+            "wait": function(delay) {
+                specter.wait(delay);
+            },
             "waitFor": function(fn) {
                 specter.waitFor(fn);
             },

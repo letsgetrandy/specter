@@ -213,6 +213,15 @@ function test(sizes, testFunc) {
     }
 }
 
+function wait (delay) {
+    var start = new Date();
+    queue.push(function(){
+        taskready = function() {
+            return (new Date() - start) > delay;
+        };
+    });
+}
+
 function waitFor(readyFn) {
     queue.push(function(){
         taskready = function() {
@@ -278,6 +287,8 @@ var specter = {
         //page.viewportSize({width: w, height: h});
     },
 
+    wait: wait,
+
     waitFor: waitFor,
 
     get window() {
@@ -303,6 +314,7 @@ var specter = {
         turn_off_animations: 'r',
         version: 'r',
         viewport: 'r',
+        wait: 'r',
         waitFor: 'r'
     }
 };
