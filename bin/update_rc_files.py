@@ -6,7 +6,7 @@ import ConfigParser
 
 def opt_move(config, section1, section2, option):
     try:
-        config.set(section2, option, config.get(section1, option, 1))
+        config.set(section2, option, config.get(section1, option))
     except ConfigParser.NoSectionError:
         # Create non-existent section
         config.add_section(section2)
@@ -38,6 +38,15 @@ for rcfile in sys.argv[1:]:
 
             with open(rcfile, 'wb') as f:
                 cp.write(f)
+
+        # update from v0.2
+        if cp.has_section('paths'):
+            if cp.has_option('paths', 'diff'):
+                diffdir = cp.get('paths', 'diff')
+                cp.set('paths', 'diffdir', diffdir)
+                cp.remove_option('paths', 'diff')
+            if cp.has_option('paths', 'fail'):
+                cp.remove_option('paths', 'fail')
 
     except ConfigParser.ParsingError as err:
         print "ERROR: not a valid .specterrc file"
