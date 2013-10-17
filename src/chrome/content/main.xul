@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin/applications" type="text/css"?>
+<?xml-stylesheet href="main.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        id="main" hidechrome="false" title="Specter"
+        windowtype="specter"
+        width="170" height="200"
+        onload="startup()"
+        orient="vertical"
+    >
+    <script type="application/javascript" src="main.js" />
+
+    <menubar id="menubar">
+      <menu id="file-menu" label="File">
+        <menupopup id="file-popup">
+          <menuitem label="Run" oncommand="doFileRun();"/>
+          <menuseparator/>
+          <menuitem label="Exit" oncommand="doFileExit();"/>
+        </menupopup>
+      </menu>
+    </menubar>
+
+    <stack id="hauntedwall" flex="1">
+        <html:div>
+            <html:h2>Specter is inspecting...</html:h2>
+        </html:div>
+        <hbox flex="1" pack="center" align="center">
+            <image src="specter.gif" />
+        </hbox>
+        <iframe id="runtime" src="about:blank" type="content" collapsed="true"/>
+    </stack>
+</window>
+

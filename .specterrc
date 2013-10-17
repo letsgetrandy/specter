@@ -1,11 +1,9 @@
 [paths]
 baseline = screenshots
 #testroot = demo
-#diff = /tmp/specter/diff
-#fail = /tmp/specter/fail
-#path = "/path/to/specter/install/dir"
+diffdir = diffs
 
 [args]
-#specter = "args to pass to specter/casper"
-#phantom = "args to pass to phantomjs"
-
+#debug
+#notests
+#verbose
