@@ -1,27 +1,34 @@
-/* global casper:false */
+// test the twitter homepage
 
-casper
-.start("https://tumblr.com/", function () {
-    casper.viewport(1024, 600);
-    specter.turn_off_animations();
-})
-.then(function() {
-    // expect some elements
-    casper.test.assertExists('#signup_email', 'Email field');
-    casper.test.assertExists('#signup_password', 'Password field');
-    casper.test.assertExists('#signup_username', 'Username field');
+open("https://tumblr.com/", function() {
 
-    // turn off the background image before screenshotting
-    casper.evaluate(function() {
-        jQuery('#fullscreen_post_bg').remove();
+    // first, hide the background image before capturing
+    perform(function() {
+        var $ = window.jQuery;
+        $('#fullscreen_post_bg').hide();
     });
-    casper.test.assertDoesntExist('#fullscreen_post_bg', 'background should be gone');
-})
-.then(function() {
-    // capture some screenshots
-    specter.screenshot(".dash_b_form_header", "form_header");
-    specter.screenshot(".dash_b_form", "login_form");
-})
-.run(function(){
-    this.test.done(0);
+
+    // then, capture a couple of elements at four screen widths
+    test(['1024', '768', '640', '320'], function() {
+        capture(".dash_b_form_header", "form_header");
+        capture(".dash_b_form", "login_form");
+    });
+
+
+    // FOR DEMO ONLY:
+
+        // now we can show the background to cause a test failure
+        perform(function() {
+            var $ = window.jQuery;
+            $('#fullscreen_post_bg').show();
+        });
+
+        // recapturing those elements should cause test failures
+        test(['1024', '768', '640', '320'], function() {
+            capture(".dash_b_form_header", "form_header");
+            capture(".dash_b_form", "login_form");
+        });
+
+    // always call finish() at the end
+    finish();
 });

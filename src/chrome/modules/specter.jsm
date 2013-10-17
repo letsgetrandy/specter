@@ -165,7 +165,7 @@ function open(uri, callback) {
 }
 
 function perform(fn) {
-    queue.push(fn);
+    queue.push(fn.bind(specter));
 }
 
 function taskready() {
@@ -220,7 +220,7 @@ function waitFor(readyFn) {
                 taskready = function() { return true; };
             }
         };
-    });
+    }.bind(specter));
 }
 
 var specter = {

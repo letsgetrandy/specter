@@ -32,9 +32,9 @@ update:
 	@find ~ -type f -name '.specterrc' -print0 | xargs -0 python $(srcdir)/bin/update_rc_files.py
 
 clean:
-	rm -rf bin
-	#rm bin/omni.ja
-	#rm bin/application.ini
+	rm bin/specter
+	rm bin/omni.ja
+	rm bin/application.ini
 
 $(bindir)/specter:
 	@ln -s $(srcdir)/bin/specter $(bindir)/specter
@@ -44,9 +44,6 @@ SPECTER-exists:
 	@echo "Checking for specter...\c"
 	@which specter > /dev/null
 	@echo "OK"
-
-bin:
-	mkdir bin
 
 bin/application.ini:
 	cp src/application.ini bin/.

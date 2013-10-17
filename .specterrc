@@ -1,7 +1,7 @@
 [paths]
 baseline = screenshots
 #testroot = demo
-#diffdir = /tmp/specter/diff
+diffdir = diffs
 
 [args]
 #debug

@@ -1,4 +1,5 @@
 .DS_Store
 .bowerrc
 contrib
-tmp
+diffs
+screenshots
