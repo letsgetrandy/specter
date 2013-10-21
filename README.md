@@ -51,7 +51,7 @@ Create your test file(s). Eg:
 open("http://www.google.com/", function() {
 
     test([960, 640, 320], function() {
-        capture("", "");
+        capture("#footer", "footer");
     });
 });
 ```
