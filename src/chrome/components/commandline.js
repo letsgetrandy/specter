@@ -66,6 +66,10 @@ CommandLine.prototype = {
             return;
         }
 
+        // for handing return codes
+        if (environment.exists('SPECTER_OUTFILE')) {
+            configuration.outfile = environment.get('SPECTER_OUTFILE');
+        }
 
         let argc = cmdLine.length,
             argv = [];

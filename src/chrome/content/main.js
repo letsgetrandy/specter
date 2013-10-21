@@ -23,7 +23,7 @@ function startup() {
             dump('diffdir = ' + configuration.diffdir.path + '\n');
         }
         if (configuration.notests) {
-            specter.exit();
+            specter.exit(0);
         }
 
         var argv = specter.config.args,
@@ -51,5 +51,5 @@ function doFileRun() {
 
 function doFileExit() {
     //Services.startup.quit(Components.interfaces.nsIAppStartup.eForceQuit);
-    specter.exit();
+    specter.exit(-1);
 }

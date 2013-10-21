@@ -31,7 +31,7 @@ function waitQueue() {
             timer.cancel();
             summary();
             if (!configuration.debug) {
-                specter.exit();
+                specter.exit(TestResults.failCount + TestResults.errorCount);
             }
         }
     }
@@ -56,7 +56,7 @@ function process(testFile) {
                 specter.done();
             },
             "exit": function() {
-                specter.exit();
+                specter.exit(0);
             },
             "finish": function() {
                 specter.runTests();

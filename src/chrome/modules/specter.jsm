@@ -70,7 +70,7 @@ function capture(selector, filename) {
 
     if (!configuration.testroot.contains(testFile, false)) {
         log('ConfigError: Test files are not within "testroot".');
-        exit();
+        exit(-255);
     }
     // determine the relative path to the test file from the base dir
     let _dirs = [], _testfile = testFile.parent.clone();
@@ -122,7 +122,34 @@ function capture(selector, filename) {
 function exit(code) {
     dump("\n");
     let c = code || 0;
-    Services.startup.quit(Components.interfaces.nsIAppStartup.eForceQuit);
+    data = 'exit ' + c;
+
+    try {
+        var file = Components.classes["@mozilla.org/file/local;1"]
+                       .createInstance(Components.interfaces.nsILocalFile);
+        file.initWithPath(configuration.outfile);
+        if (!file.exists()) {
+            file.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE,
+                parseInt('0666', 8));
+        }
+        var fstream =
+                Components.classes["@mozilla.org/network/file-output-stream;1"]
+                    .createInstance(Components.interfaces.nsIFileOutputStream);
+        fstream.init(file, 2, 0x200, false);
+        var cstream =
+                Components.classes["@mozilla.org/intl/converter-output-stream;1"]
+                    .createInstance(Components.interfaces.nsIConverterOutputStream);
+        cstream.init(fstream, 'UTF-8', data.length,
+                Components.interfaces.nsIConverterInputStream.DEFAULTREPLACEMENT_CHARACTER);
+        cstream.writeString(data);
+        cstream.close();
+        fstream.close();
+    //} catch(ex) {
+    //    log('oops');
+    //    log(ex);
+    } finally {
+        Services.startup.quit(Components.interfaces.nsIAppStartup.eForceQuit);
+    }
 }
 
 function log(s) {

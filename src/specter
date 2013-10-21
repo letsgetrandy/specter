@@ -163,11 +163,19 @@ fi
 # by Mozilla
 export SPECTER_ARGS="$@"
 export SPECTER_ENV="$LISTVAR"
+export SPECTER_OUTFILE="/tmp/$(basename $0).$$.tmp"
 
 # launch specter with firefox/xulrunner
 "$SPECTERLAUNCHER" -app $SPECTERDIR/application.ini $PROFILE -no-remote "$@"
 
-EXITCODE=$?
+if [ -f $SPECTER_OUTFILE ]; then
+    source $SPECTER_OUTFILE
+    EXITCODE=$?
+else
+    EXITCODE=-1
+fi
+
+rm $SPECTER_OUTFILE
 
 if [ "$PROFILE_DIR" != "" ]; then
     rm -rf $PROFILE_DIR
