@@ -151,6 +151,9 @@ function summary() {
     out.push(TestResults.passCount + ' passed');
     out.push(TestResults.newCount + ' rebased');
     out.push(TestResults.failCount + ' failed');
+    if (TestResults.errorCount) {
+        out.push(TestResults.errorCount + ' errors');
+    }
     specter.log('\n' + TestResults.testCount + ' images captured in ' +
             TestResults.fileCount + ' files.\n' + out.join(', ') + '.');
 }

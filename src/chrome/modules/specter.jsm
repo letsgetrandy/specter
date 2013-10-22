@@ -250,10 +250,24 @@ function wait (delay) {
 }
 
 function waitFor(readyFn) {
+    var timeout = 5000,
+        start = new Date();
+    if (arguments.length > 1 && !isNaN(arguments[1])) {
+        timeout = arguments[1];
+    }
     queue.push(function(){
         taskready = function() {
-            if (readyFn()) {
+            var now = new Date();
+            if (now - start > timeout) {
+                while (queue.length) {
+                    queue.shift();
+                }
                 taskready = function() { return true; };
+                TestResults.error(testFile.path);
+            } else {
+                if (readyFn()) {
+                    taskready = function() { return true; };
+                }
             }
         };
     }.bind(specter));

@@ -4,7 +4,7 @@ var EXPORTED_SYMBOLS = ["TestResults"];
 
 
 var files={}, testcount=0, passcount=0, failcount=0, failures=[],
-    newcount=0, errorcount=0;
+    newcount=0, errorcount=0, errors=[];
 
 function pass(file) {
     passcount++;
@@ -21,6 +21,7 @@ function fail(file) {
 
 function error(file) {
     errorcount++;
+    errors.push(file);
     dump('E');
 }
 
