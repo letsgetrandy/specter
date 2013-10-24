@@ -90,7 +90,9 @@ function capture(selector, filename) {
     baseline.append(capture_name + '.png');
 
     if (configuration.rebase) {
-        baseline.remove(false);
+        if (baseline.exists()) {
+            baseline.remove(false);
+        }
     }
 
     if (baseline.exists()) {
