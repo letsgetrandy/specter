@@ -9,7 +9,7 @@ open("https://tumblr.com/", function() {
     });
 
     // then, capture a couple of elements at four screen widths
-    test(['1024', '768', '640', '320'], function() {
+    test([1024, 768, 640, 320], function() {
         capture(".dash_b_form_header", "form_header");
         capture(".dash_b_form", "login_form");
     });
@@ -24,7 +24,7 @@ open("https://tumblr.com/", function() {
         });
 
         // recapturing those elements should cause test failures
-        test(['1024', '768', '640', '320'], function() {
+        test([1024, 768, 640, 320], function() {
             capture(".dash_b_form_header", "form_header");
             capture(".dash_b_form", "login_form");
         });

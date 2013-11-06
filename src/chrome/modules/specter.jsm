@@ -227,7 +227,7 @@ function test(sizes, testFunc) {
         sizes = [sizes];
     }
     for (let size in sizes) {
-        let mysize = sizes[size];
+        let mysize = String(sizes[size]);
 
         queue.push(function(){
             pagesize = mysize;
