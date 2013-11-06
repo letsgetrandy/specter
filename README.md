@@ -118,11 +118,19 @@ diffdir  = /tmp/specter
 **diffdir** is where diff images are stored for comparison later
 
 
+## Questions?
 
-_Please note that relative paths in .specterrc files are relative to that file._
+If have other questions about Specter, what it does, how it works, or why, have
+a look at the [FAQ](https://github.com/letsgetrandy/specter/wiki/FAQ), and if
+you don't see the answers you're looking for there, contact me!
+
+
+## Notes
+
+_Relative paths in .specterrc files are relative to that file._
 
 _v-0.3 note: baselines made with v-0.2 are not compatible with v-0.3.
-_
+
 _v-0.2 note: the "specter" section in the rc files has been replaced by "paths" and "args" sections._
 
 
