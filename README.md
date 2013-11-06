@@ -53,6 +53,8 @@ open("http://www.google.com/", function() {
     test([960, 640, 320], function() {
         capture("#footer", "footer");
     });
+
+    finish();
 });
 ```
 
