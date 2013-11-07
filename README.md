@@ -129,7 +129,7 @@ you don't see the answers you're looking for there, contact me!
 
 _Relative paths in .specterrc files are relative to that file._
 
-_v-0.3 note: baselines made with v-0.2 are not compatible with v-0.3.
+_v-0.3 note: baselines made with v-0.2 are not compatible with v-0.3._
 
 _v-0.2 note: the "specter" section in the rc files has been replaced by "paths" and "args" sections._
 
