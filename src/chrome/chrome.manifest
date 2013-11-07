@@ -1,0 +1,7 @@
+content  specter content/
+resource specter modules/
+
+component {3691989c-31fb-11e3-8315-4c8d79f156f4} components/commandline.js
+contract @mozilla.org/commandlinehandler/general-startup;1?type=specter {3691989c-31fb-11e3-8315-4c8d79f156f4}
+category command-line-handler m-spectercli @mozilla.org/commandlinehandler/general-startup;1?type=specter
+
