@@ -59,7 +59,8 @@ fi
 
 function showHelp() {
 
-    #echo "                                     cookies."
+    echo "  --emptydiffs                       Remove all previous failure diffs"
+    echo "                                     before running"
     echo "  --config=<file>                    Load the given configuration file"
     #echo "                                     (JSON formated)"
     #echo "  --debug=[yes|no]                   Prints additional warning and debug message"

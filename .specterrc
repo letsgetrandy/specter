@@ -4,6 +4,7 @@ baseline = screenshots
 diffdir = diffs
 
 [args]
+emptydiffs
 #debug
 #notests
 #verbose
