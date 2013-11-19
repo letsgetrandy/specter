@@ -56,7 +56,8 @@ bin/application.ini:
 
 bin/omni.ja:
 	@cd src; \
-		zip -r ../bin/omni.ja chrome defaults chrome.manifest -x defaults/preferences/debug.js
+		zip -r ../bin/omni.ja chrome defaults chrome.manifest \
+			-x defaults/preferences/debug.js **/.DS_Store
 
 bin/specter:
 	@cp src/specter bin/.
