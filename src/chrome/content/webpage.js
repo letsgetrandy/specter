@@ -19,7 +19,5 @@ window.addEventListener("DOMWindowClose", function(event) {
     if (closing)
         return;
     closing = true;
-    browser.webpage.close();
+    //browser.close();
 }, true);
-
-

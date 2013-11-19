@@ -44,7 +44,6 @@ function checkInt(val) {
 }
 
 
-Services.prefs.setBoolPref('browser.dom.window.dump.enabled', true);
 
 var parentwin, window, browser, loaded=false, pagedone=true;
 var queue=[], testFile, testName, pagesize;
@@ -152,7 +151,6 @@ function exit(code) {
         cstream.close();
         fstream.close();
     //} catch(ex) {
-    //    log('oops');
     //    log(ex);
     } finally {
         Services.startup.quit(Components.interfaces.nsIAppStartup.eForceQuit);

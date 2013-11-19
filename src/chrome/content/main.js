@@ -9,7 +9,6 @@ Components.utils.import("resource://specter/testrunner.jsm");
 Components.utils.import("resource://specter/configuration.jsm");
 
 // we need to output to the shell console
-Services.prefs.setBoolPref('browser.dom.window.dump.enabled', true);
 
 function startup() {
 
@@ -18,6 +17,7 @@ function startup() {
 
         configuration.init();
         if (configuration.debug) {
+            Services.prefs.setBoolPref('browser.dom.window.dump.enabled', true);
             dump('baseline = ' + configuration.baseline.path + '\n');
             dump('testroot = ' + configuration.testroot.path + '\n');
             dump('diffdir = ' + configuration.diffdir.path + '\n');
