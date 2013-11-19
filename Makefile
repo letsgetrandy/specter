@@ -35,7 +35,10 @@ update:
 	@echo "Updating .specterrc files"
 	@find ~ -type f -name '.specterrc' -print0 | xargs -0 python $(srcdir)/bin/update_rc_files.py
 
-upgrade: uninstall install
+gitpull:
+	git pull
+
+upgrade: uninstall clean gitpull xul install
 
 clean:
 	@rm bin/specter
