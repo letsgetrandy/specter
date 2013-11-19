@@ -61,6 +61,11 @@ function capture(selector, filename) {
     // find the element on screen or exit
     var clip,
         el = $(selector);
+
+    if (el.offsetWidth <= 0 || el.offsetHeight <= 0) {
+        log("NotVisibleError: Unable to capture '" + selector + "'.");
+        return;
+    }
     if (el) {
         clip = el.getBoundingClientRect();
     } else {
