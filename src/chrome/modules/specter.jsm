@@ -62,11 +62,11 @@ function capture(selector, filename) {
     var clip,
         el = $(selector);
 
-    if (el.offsetWidth <= 0 || el.offsetHeight <= 0) {
-        log("NotVisibleError: Unable to capture '" + selector + "'.");
-        return;
-    }
     if (el) {
+        if (el.offsetWidth <= 0 || el.offsetHeight <= 0) {
+            log("NotVisibleError: Unable to capture '" + selector + "'.");
+            return;
+        }
         clip = el.getBoundingClientRect();
     } else {
         log("NotFoundError: Unable to capture '" + selector + "'.");
