@@ -77,6 +77,9 @@ function setflag(k) {
         case 'rebase':
             configuration.rebase = true;
             break;
+        case 'emptydiffs':
+            configuration.emptydiffs = true;
+            break;
         case 'v':
         case 'verbose':
             configuration.verbose = true;
@@ -154,6 +157,7 @@ var configuration = {
 
     args: [],
     debug: false,
+    emptydiffs: false,
     init: init,
     notests: false,
     opts: [],
@@ -180,6 +184,7 @@ var configuration = {
         baseline: 'r',
         debug: 'rw',
         diffdir: 'rw',
+        emptydiffs: 'rw',
         init: 'r',
         notests: 'rw',
         opts: 'r',

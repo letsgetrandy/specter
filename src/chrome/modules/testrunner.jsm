@@ -219,6 +219,13 @@ var TestRunner = {
     },
 
     run: function() {
+        if (configuration.emptydiffs) {
+            // delete the diffs
+            let diffdir = configuration.diffdir.clone();
+            if (diffdir.exists()) {
+                diffdir.remove(true);
+            }
+        }
         timer.initWithCallback(waitQueue, 50, timer.TYPE_REPEATING_SLACK);
     },
 
