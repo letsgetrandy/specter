@@ -172,11 +172,10 @@ export SPECTER_OUTFILE="/tmp/$(basename $0).$$.tmp"
 if [ -f $SPECTER_OUTFILE ]; then
     source $SPECTER_OUTFILE
     EXITCODE=$?
+    rm $SPECTER_OUTFILE
 else
     EXITCODE=-1
 fi
-
-rm $SPECTER_OUTFILE
 
 if [ "$PROFILE_DIR" != "" ]; then
     rm -rf $PROFILE_DIR
