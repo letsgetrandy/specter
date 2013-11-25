@@ -184,6 +184,11 @@ function open(uri, callback) {
         b.addProgressListener(ProgressListener,
             Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
 
+        if (uri.indexOf(':') < 0) {
+            let dir = testFile.parent.clone();
+            dir.append(uri);
+            uri = 'file://' + dir.path;
+        }
         try {
             browser.loadURI(uri, null, null);
             //browser.webNavigation.loadURI(uri,
