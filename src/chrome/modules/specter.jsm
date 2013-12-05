@@ -44,8 +44,8 @@ function checkInt(val) {
 }
 
 
-
-var parentwin, window, browser, loaded=false, pagedone=true;
+var parentwin = windowMediator.getMostRecentWindow("specter");
+var window, browser, loaded=false, pagedone=true;
 var queue=[], testFile, testName, pagesize;
 
 // convenience function
@@ -93,6 +93,7 @@ function capture(selector, filename) {
     }
     baseline.append(capture_name + '.png');
 
+    // if rebasing, delete old baseline
     if (configuration.rebase) {
         if (baseline.exists()) {
             baseline.remove(false);
@@ -103,7 +104,7 @@ function capture(selector, filename) {
         // capture and compare
         let content = imagelib.capture(window, clip, null);
         let blob = File(baseline);
-        basedata = imagelib.createImage(blob);
+        let basedata = imagelib.createImage(blob);
         let diff = imagelib.compare(content, basedata);
         if (diff) {
             let diffFile = configuration.diffdir.clone();
@@ -112,14 +113,13 @@ function capture(selector, filename) {
             }
             diffFile.append(capture_name + '-diff.png');
             imagelib.saveCanvas(diff, diffFile);
-            //window.document.append(diff);
             TestResults.fail(_dirs.join('/') + '/' + capture_name + '-diff.png');
         } else {
             TestResults.pass(capture_name);
         }
     } else {
         // capture and save
-        var content = imagelib.capture(window, clip, baseline);
+        imagelib.capture(window, clip, baseline);
         TestResults.rebase(capture_name);
     }
     return;
@@ -165,20 +165,18 @@ function open(uri, callback) {
     loaded = false;
     pagedone = false;
 
-    if (!parentwin) {
-        parentwin = windowMediator.getMostRecentWindow("specter");
-    }
     let features = "chrome,dialog=no,scrollbars=yes";
         features += ",width=1000,height=500";
 
-    ProgressListener.setListener(function(){
+    ProgressListener.setListener(function loadListener(){
         loaded = true;
         ProgressListener.setListener(function(){});
+        browser.removeProgressListener(ProgressListener);
         callback();
     });
     window = parentwin.openDialog(
-            "chrome://specter/content/webpage.xul",
-            "_blank", features, { callback:function(b){
+            'chrome://specter/content/webpage.xul',
+            '_blank', features, { callback:function(b){
 
         browser = b;
         b.addProgressListener(ProgressListener,
@@ -210,14 +208,20 @@ function taskready() {
 }
 
 function dequeue() {
-    var fn;
     if (taskready()) {
+        var fn;
         if (fn = queue.shift()) {
             fn();
         } else {
             timer.cancel();
-            window.close();
             pagedone = true;
+            if (browser) {
+                browser = null;
+            }
+            if (window) {
+                window.close();
+                window = null;
+            }
         }
     }
 }

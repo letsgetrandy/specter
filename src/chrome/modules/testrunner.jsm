@@ -52,9 +52,6 @@ function process(testFile) {
             "capture": function(selector, name) {
                 specter.capture(selector, name);
             },
-            "done": function() {
-                specter.done();
-            },
             "exit": function() {
                 specter.exit(0);
             },
