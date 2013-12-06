@@ -182,10 +182,15 @@ function open(uri, callback) {
         b.addProgressListener(ProgressListener,
             Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
 
-        if (uri.indexOf(':') < 0) {
-            let dir = testFile.parent.clone();
-            dir.append(uri);
-            uri = 'file://' + dir.path;
+        // check for relative URL
+        if (uri.indexOf('://') < 0) {
+            if (configuration.hostname) {
+                uri = configuration.hostname + uri;
+            } else {
+                let dir = testFile.parent.clone();
+                dir.append(uri);
+                uri = 'file://' + dir.path;
+            }
         }
         try {
             browser.loadURI(uri, null, null);

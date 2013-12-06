@@ -21,7 +21,7 @@ const tempDirectory =
 var diffdir = tempDirectory.clone();
 var baseline = currentWorkingDirectory.clone();
 var testroot = currentWorkingDirectory.clone();
-
+var hostname = '';
 
 function init() {
     diffdir.append('specter');
@@ -55,6 +55,9 @@ function setopt(k, v) {
                 v = currentWorkingDirectory.path + '/' + v;
             }
             diffdir.initWithPath(v);
+            break;
+        case 'hostname':
+            hostname = v;
             break;
         case 'testroot':
             if (v.charAt(0) !== '/') {
@@ -172,6 +175,9 @@ var configuration = {
     get diffdir() {
         return diffdir;
     },
+    get hostname() {
+        return hostname;
+    },
     get testroot() {
         return testroot;
     },
@@ -183,8 +189,9 @@ var configuration = {
         args: 'rw',
         baseline: 'r',
         debug: 'rw',
-        diffdir: 'rw',
+        diffdir: 'r',
         emptydiffs: 'rw',
+        hostname: 'r',
         init: 'r',
         notests: 'rw',
         opts: 'r',
