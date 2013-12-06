@@ -68,7 +68,7 @@ function capture(selector, filename) {
         }
         clip = el.getBoundingClientRect();
     } else {
-        log("NotFoundError: Unable to capture '" + selector + "'.");
+        log("NotFoundError: Unable to capture '" + selector + "' in " + testFile.path);
         return;
     }
 
