@@ -167,7 +167,7 @@ export SPECTER_ENV="$LISTVAR"
 export SPECTER_OUTFILE="/tmp/$(basename $0).$$.tmp"
 
 # launch specter with firefox/xulrunner
-"$SPECTERLAUNCHER" -app $SPECTERDIR/application.ini $PROFILE -no-remote "$@"
+"$SPECTERLAUNCHER" -app $SPECTERDIR/application.ini $PROFILE -no-remote -safe-mode "$@"
 
 if [ -f $SPECTER_OUTFILE ]; then
     source $SPECTER_OUTFILE
