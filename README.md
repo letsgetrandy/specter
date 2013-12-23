@@ -109,6 +109,10 @@ $ cat .specterrc
 testroot = static/styles/tests
 baseline = static/styles/screenshots
 diffdir  = /tmp/specter
+
+[hostnames]
+static/tests/mycoolsite = http://localhost:5000
+static/tests/myothersite = http://localhost:8080
 ```
 
 **testroot** is the folder that contains all the test files to run
@@ -116,6 +120,8 @@ diffdir  = /tmp/specter
 **baseline** is the directory in which baseline screen captures should be stored
 
 **diffdir** is where diff images are stored for comparison later
+
+**[hostnames]** allows you to define custom hostnames where tests should be run
 
 
 ## Questions?
@@ -125,15 +131,10 @@ a look at the [FAQ](https://github.com/letsgetrandy/specter/wiki/FAQ), and if
 you don't see the answers you're looking for there, contact me!
 
 
-## Notes
+## Changelog
 
-_Relative paths in .specterrc files are relative to that file._
-
-_v-0.3 note: baselines made with v-0.2 are not compatible with v-0.3._
-
-_v-0.2 note: the "specter" section in the rc files has been replaced by "paths" and "args" sections._
-
-
+A list of changes made in each version can be found
+[here](https://github.com/letsgetrandy/specter/wiki/Changelog)
 
 --------------------------------------
 
