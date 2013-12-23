@@ -6,7 +6,7 @@ srcdir = $(CURDIR)
 found_location = $(shell which specter)
 found_version = $(shell specter --version)
 expected_location = $(bindir)/specter
-expected_version = specter 0.4
+expected_version = specter 0.5
 
 
 xul: bin/omni.ja bin/application.ini bin/specter
