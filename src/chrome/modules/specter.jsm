@@ -69,6 +69,7 @@ function capture(selector, filename) {
         clip = el.getBoundingClientRect();
     } else {
         log("NotFoundError: Unable to capture '" + selector + "' in " + testFile.path);
+        TestResults.error(filename);
         return;
     }
 
@@ -113,7 +114,9 @@ function capture(selector, filename) {
             }
             diffFile.append(capture_name + '-diff.png');
             imagelib.saveCanvas(diff, diffFile);
-            TestResults.fail(_dirs.join('/') + '/' + capture_name + '-diff.png');
+            _dirs.unshift(configuration.diffdir.path);
+            _dirs.push(capture_name + '-diff.png');
+            TestResults.fail(_dirs.join('/'));
         } else {
             TestResults.pass(capture_name);
         }
@@ -147,6 +150,13 @@ function exit(code) {
                     .createInstance(Components.interfaces.nsIConverterOutputStream);
         cstream.init(fstream, 'UTF-8', data.length,
                 Components.interfaces.nsIConverterInputStream.DEFAULTREPLACEMENT_CHARACTER);
+
+        // if a failviewer is defined run it for failed diffs
+        if (TestResults.failCount > 0 && configuration.failviewer) {
+            cstream.writeString(configuration.failviewer + ' ' +
+                    TestResults.failedTests.join(' ') + '\n');
+        }
+
         cstream.writeString(data);
         cstream.close();
         fstream.close();

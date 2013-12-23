@@ -2,6 +2,7 @@
 baseline = screenshots
 testroot = demo
 diffdir = diffs
+failviewer = open /Applications/Preview.app
 
 [args]
 emptydiffs

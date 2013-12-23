@@ -79,6 +79,7 @@ var TestResults = {
         errorCount: 'r',
         fail: 'r',
         failCount: 'r',
+        failedTests: 'r',
         newCount: 'r',
         pass: 'r',
         passCount: 'r',

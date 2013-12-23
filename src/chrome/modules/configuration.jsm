@@ -21,6 +21,7 @@ const tempDirectory =
 var diffdir = tempDirectory.clone();
 var baseline = currentWorkingDirectory.clone();
 var testroot = currentWorkingDirectory.clone();
+var failviewer = '';
 var hostname = '';
 
 function init() {
@@ -55,6 +56,9 @@ function setopt(k, v) {
                 v = currentWorkingDirectory.path + '/' + v;
             }
             diffdir.initWithPath(v);
+            break;
+        case 'failviewer':
+            failviewer = v;
             break;
         case 'hostname':
             hostname = v;
@@ -119,7 +123,7 @@ function readOpts(path) {
     //dump(path + ' has ' + lines.length + ' lines.');
 
     var comment = /^\s*#/,
-        setting = /^\s*([^=\s]+)\s*=\s*([^\s]+)/,
+        setting = /^\s*([^=\s]+)\s*=\s*(.+)/,
         flag    = /^\s*([^=\s]+)/;
     for (let i=0; i<lines.length; i++) {
         if (comment.test(lines[i])) {
@@ -174,6 +178,9 @@ var configuration = {
     },
     get diffdir() {
         return diffdir;
+    },
+    get failviewer() {
+        return failviewer;
     },
     get hostname() {
         return hostname;
