@@ -160,13 +160,8 @@ var TestRunner = {
     handleArg: function(filename) {
         var testfile = null,
             dir = configuration.workingDirectory;
-        //for (var i=0; i<validoptions.length; i++) {
-        //}
 
         try {
-            //testfile = Components.classes['@mozilla.org/file/local;1']
-            //        .createInstance(Components.interfaces.nsILocalFile);
-            //testfile.initWithPath(filename);
             var f = filename;
             if (f.charAt(0) !== '/') {
                 f = configuration.workingDirectory.path + '/' + f;

@@ -26,8 +26,14 @@ function startup() {
             specter.exit(0);
         }
 
-        var argv = specter.config.args,
+        var argv = configuration.args,
             argc = argv.length;
+
+        if (argc === 0) {
+            configuration.args.push(configuration.testroot.path);
+            argv = configuration.args;
+            argc = 1;
+        }
 
         for (let i=0; i<argc; i++) {
             try {

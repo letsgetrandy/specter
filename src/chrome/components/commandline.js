@@ -57,15 +57,6 @@ CommandLine.prototype = {
         }
         */
 
-        // TODO: this is superfluous
-        //
-        if (cmdLine.length === 0) {
-            Components.utils.reportError("script is missing");
-            dump("script is missing\n");
-            cmdLine.preventDefault = true;
-            return;
-        }
-
         // for handing return codes
         if (environment.exists('SPECTER_OUTFILE')) {
             configuration.outfile = environment.get('SPECTER_OUTFILE');
