@@ -192,18 +192,8 @@ function open(uri, callback) {
         b.addProgressListener(ProgressListener,
             Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
 
-        // check for relative URL
-        if (uri.indexOf('://') < 0) {
-            if (configuration.hostname) {
-                uri = configuration.hostname + uri;
-            } else {
-                let dir = testFile.parent.clone();
-                dir.append(uri);
-                uri = 'file://' + dir.path;
-            }
-        }
         try {
-            browser.loadURI(uri, null, null);
+            browser.loadURI(getURL(uri), null, null);
             //browser.webNavigation.loadURI(uri,
             //    0, null, null, null);
         } catch(ex) {
@@ -212,6 +202,36 @@ function open(uri, callback) {
             pagedone = true;
         }
     }});
+}
+
+function getURL(uri) {
+    var match=null, path='';
+    // check for relative URL
+    if (uri.indexOf('://') < 0) {
+
+        // determine the relative path to the test file from the base dir
+        let _dirs = [], _testfile = testFile.clone();
+        while (!_testfile.equals(configuration.testroot)) {
+            _dirs.unshift(_testfile.leafName);
+            _testfile = _testfile.parent;
+        }
+        let _path = _dirs.join('/');
+
+        for (path in configuration.hostnames) {
+            if (_path.indexOf(path) === 0) {
+                return configuration.hostnames[path] + uri;
+            }
+        }
+        if (configuration.hostname) {
+            return configuration.hostname + uri;
+        } else {
+            let dir = testFile.parent.clone();
+            dir.append(uri);
+            return 'file://' + dir.path;
+        }
+    } else {
+        return uri;
+    }
 }
 
 function perform(fn) {

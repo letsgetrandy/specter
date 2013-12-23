@@ -9,3 +9,7 @@ emptydiffs
 #debug
 #notests
 #verbose
+
+[hostnames]
+facebook = https://www.facebook.com/
+tumblr = http://tumblr.com/

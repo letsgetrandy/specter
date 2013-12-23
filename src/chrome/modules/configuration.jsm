@@ -23,6 +23,8 @@ var baseline = currentWorkingDirectory.clone();
 var testroot = currentWorkingDirectory.clone();
 var failviewer = '';
 var hostname = '';
+var hostnames = {};
+var currentSection = '';
 
 function init() {
     diffdir.append('specter');
@@ -43,7 +45,10 @@ function init() {
 }
 
 function setopt(k, v) {
-    //dump('setting ' + k + ' = "' + v + '"\n');
+    if (/\[\s*hostnames\s*\]/.test(currentSection)) {
+        hostnames[k] = v;
+        return;
+    }
     switch(k) {
         case 'baseline':
             if (v.charAt(0) !== '/') {
@@ -73,6 +78,10 @@ function setopt(k, v) {
 }
 
 function setflag(k) {
+    if (/\[\s*hostnames\s*\]/.test(currentSection)) {
+        // hostnames should be key/value pairs
+        return;
+    }
     switch (k) {
         case 'd':
         case 'debug':
@@ -105,7 +114,6 @@ function findIniFiles() {
         }
         dir = dir.parent;
     }
-    //dump("rc files:\n- " + rcfiles.join("\n- ") + "\n");
     while (rcfiles.length) {
         let path = rcfiles.pop();
         readOpts(path);
@@ -120,12 +128,15 @@ function readOpts(path) {
             .createInstance(Components.interfaces.nsILocalFile);
     file.initWithPath(path);
     var lines = readTextFile(file).split(/\n/);
-    //dump(path + ' has ' + lines.length + ' lines.');
-
     var comment = /^\s*#/,
         setting = /^\s*([^=\s]+)\s*=\s*(.+)/,
-        flag    = /^\s*([^=\s]+)/;
+        flag    = /^\s*([^=\s]+)/,
+        section = /^\[(.+)\]\s*$/;
     for (let i=0; i<lines.length; i++) {
+        if (section.test(lines[i])) {
+            currentSection = lines[i];
+            continue;
+        }
         if (comment.test(lines[i])) {
             continue;
         }
@@ -137,6 +148,8 @@ function readOpts(path) {
             setflag(m[1]);
         }
     }
+    // avoid accidentally treating command-line opts as being in a section
+    currentSection = '';
 }
 
 function readTextFile(file) {
@@ -158,7 +171,6 @@ function readTextFile(file) {
     fs.close();
     return contents;
 }
-
 
 var configuration = {
 
@@ -184,6 +196,9 @@ var configuration = {
     },
     get hostname() {
         return hostname;
+    },
+    get hostnames() {
+        return hostnames;
     },
     get testroot() {
         return testroot;
