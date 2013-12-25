@@ -47,6 +47,7 @@ function checkInt(val) {
 var parentwin = windowMediator.getMostRecentWindow("specter");
 var window, browser, loaded=false, pagedone=true;
 var queue=[], testFile, testName, pagesize;
+var fnOnload, fnOnunload;
 
 // convenience function
 function $(selector) {
@@ -171,6 +172,14 @@ function log(s) {
     dump(s + "\n");
 }
 
+function onLoad(callback) {
+    fnOnload = callback;
+}
+
+function onUnload(callback) {
+    fnOnunload = callback;
+}
+
 function open(uri, callback) {
     loaded = false;
     pagedone = false;
@@ -182,6 +191,10 @@ function open(uri, callback) {
         loaded = true;
         ProgressListener.setListener(function(){});
         browser.removeProgressListener(ProgressListener);
+
+        if (fnOnload && typeof fnOnload === 'function') {
+            fnOnload();
+        }
         callback();
     });
     window = parentwin.openDialog(
@@ -249,6 +262,9 @@ function dequeue() {
             fn();
         } else {
             timer.cancel();
+            if (fnOnunload && typeof fnOnunload === 'function') {
+                fnOnunload();
+            }
             pagedone = true;
             if (browser) {
                 browser = null;
@@ -348,6 +364,9 @@ var specter = {
 
     log: log,
 
+    onLoad: onLoad,
+    onUnload: onUnload,
+
     open: open,
 
     perform: perform,
@@ -395,6 +414,8 @@ var specter = {
         debug: 'r',
         exit: 'r',
         log: 'r',
+        onLoad: 'r',
+        onUnload: 'r',
         open: 'r',
         ready: 'r',
         runTests: 'r',

@@ -61,6 +61,12 @@ function process(testFile) {
             "log": function(s) {
                 specter.log(s);
             },
+            "onload": function(fn) {
+                specter.onLoad(fn);
+            },
+            "onunload": function(fn) {
+                specter.onUnload(fn);
+            },
             "open": function(uri, fn) {
                 specter.open(uri, fn);
             },
@@ -84,9 +90,26 @@ function process(testFile) {
         wantXrays: true
     });
 
-    var src = readFile(file);
-    Components.utils.evalInSandbox(src, sandbox);
+    specter.onLoad(null);
+    specter.onUnload(null);
+
+    var testfiles  = [],
+        events = findSiblingFile(file, '_events.js');
+    if (events) {
+        Components.utils.evalInSandbox(events, sandbox);
+    }
+    Components.utils.evalInSandbox(readFile(file), sandbox);
     //specter.runTests();
+}
+
+function findSiblingFile(file, filename) {
+    var sibling = file.parent.clone();
+    sibling.append(filename);
+    if (sibling.exists()) {
+        return readFile(sibling);
+    } else {
+        return null;
+    }
 }
 
 function readFile(file) {
@@ -120,8 +143,14 @@ function recurse(iFile, callback) {
     while (items.hasMoreElements()) {
         let item = items.getNext().QueryInterface(
                     Components.interfaces.nsIFile);
-        if (item.leafName === "." || item.leafName === "..") {
+        // skip . and .. directories when recursing
+        if (item.leafName === '.' || item.leafName === '..') {
             return;
+        }
+        // skip files whose names start with '_'
+        if (item.leafName.charAt(0) === '_') {
+            specter.log('skipping ' + item.leafName);
+            continue;
         }
         //let f = item.clone().append
         if (item.exists() && item.isDirectory()) {
