@@ -111,17 +111,23 @@ baseline = static/styles/screenshots
 diffdir  = /tmp/specter
 
 [hostnames]
-static/tests/mycoolsite = http://localhost:5000
-static/tests/myothersite = http://localhost:8080
+mycoolsite = http://localhost:5000
+myothersite = http://localhost:8080
 ```
 
-**testroot** is the folder that contains all the test files to run
+**testroot** is the folder that contains all the test files to run. No value
+is required here, but specifying the root directory of your tests will help
+Specter to put your baseline and diff images into more meaningful directories.
 
 **baseline** is the directory in which baseline screen captures should be stored
 
-**diffdir** is where diff images are stored for comparison later
+**diffdir** is where diff images are stored for comparison later. This is
+typically a temp directory of some kind.
 
-**[hostnames]** allows you to define custom hostnames where tests should be run
+**[hostnames]** allows you to define custom hostnames where tests should be run.
+In this example, `mycoolsite` and `myothersite` are directories directly below
+the _testroot_ (`static/styles/tests`), which is a path relative to the
+location of the `.specterrc` file.
 
 
 ## Questions?
