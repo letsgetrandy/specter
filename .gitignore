@@ -2,3 +2,6 @@
 contrib
 diffs
 screenshots
+bin/application.ini
+bin/omni.ja
+bin/specter
