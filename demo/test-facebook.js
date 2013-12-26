@@ -27,9 +27,7 @@ open('https://www.facebook.com/', function() {
 
 
     // example of clicking a link and waiting for it to load
-    perform(function(){
-        window.document.querySelector('a[href*=developers]').click();
-    });
+    click('a[href*=developers]');
     waitForLoad();
 
     // always call finish() at the end

@@ -129,6 +129,18 @@ function capture(selector, filename) {
     return;
 }
 
+function click(selector) {
+    queue.push(function clickSelector() {
+        var w = browser.contentWindow.wrappedJSObject,
+            el = w.document.querySelector(selector);
+        if (el) {
+            el.click();
+        } else {
+            log("ClickError: element not found '" + selector + "' in " + testFile.path);
+        }
+    });
+}
+
 function exit(code) {
     dump("\n");
     let c = code || 0;
@@ -364,9 +376,7 @@ var specter = {
         Services.obs.notifyObservers(null, "net:clear-active-logins", null);
     },
 
-    click: function(selector) {
-        //
-    },
+    click: click,
 
     get config() {
         return configuration;
@@ -424,6 +434,7 @@ var specter = {
 
     __exposedProps__ : {
         capture: 'r',
+        click: 'r',
         config: 'r',
         debug: 'r',
         exit: 'r',
