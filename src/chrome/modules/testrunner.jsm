@@ -82,6 +82,9 @@ function process(testFile) {
             "waitFor": function(fn) {
                 specter.waitFor(fn);
             },
+            "waitForLoad": function(fn) {
+                specter.waitForLoad(fn);
+            },
             get window() {
                 return specter.window;
             },

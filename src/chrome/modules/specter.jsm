@@ -187,23 +187,12 @@ function open(uri, callback) {
     let features = "chrome,dialog=no,scrollbars=yes";
         features += ",width=1000,height=500";
 
-    ProgressListener.setListener(function loadListener(){
-        loaded = true;
-        ProgressListener.setListener(function(){});
-        browser.removeProgressListener(ProgressListener);
-
-        if (fnOnload && typeof fnOnload === 'function') {
-            fnOnload();
-        }
-        callback();
-    });
     window = parentwin.openDialog(
             'chrome://specter/content/webpage.xul',
             '_blank', features, { callback:function(b){
 
         browser = b;
-        b.addProgressListener(ProgressListener,
-            Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
+        addLoadListener(callback);
 
         try {
             browser.loadURI(getURL(uri), null, null);
@@ -215,6 +204,29 @@ function open(uri, callback) {
             pagedone = true;
         }
     }});
+}
+
+function waitForLoad() {
+    queue.push(function() {
+        taskready = function() { return false; }
+        addLoadListener(function loadDone() {
+            taskready = function() { return true; }
+        });
+    });
+}
+
+function addLoadListener(callback) {
+    ProgressListener.setListener(function loadListener(){
+        loaded = true;
+        ProgressListener.setListener(function(){});
+        browser.removeProgressListener(ProgressListener);
+        if (fnOnload && typeof fnOnload === 'function') {
+            fnOnload();
+        }
+        callback();
+    });
+    browser.addProgressListener(ProgressListener,
+            Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
 }
 
 function getURL(uri) {
@@ -400,6 +412,8 @@ var specter = {
 
     waitFor: waitFor,
 
+    waitForLoad: waitForLoad,
+
     get window() {
         try {
             return browser.contentWindow.wrappedJSObject;
@@ -426,6 +440,7 @@ var specter = {
         version: 'r',
         viewport: 'r',
         wait: 'r',
-        waitFor: 'r'
+        waitFor: 'r',
+        waitForLoad: 'r'
     }
 };
