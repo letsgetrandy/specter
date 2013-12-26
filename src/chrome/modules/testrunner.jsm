@@ -149,7 +149,6 @@ function recurse(iFile, callback) {
         }
         // skip files whose names start with '_'
         if (item.leafName.charAt(0) === '_') {
-            specter.log('skipping ' + item.leafName);
             continue;
         }
         //let f = item.clone().append
