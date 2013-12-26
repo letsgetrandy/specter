@@ -147,8 +147,11 @@ function recurse(iFile, callback) {
         if (item.leafName === '.' || item.leafName === '..') {
             return;
         }
-        // skip files whose names start with '_'
-        if (item.leafName.charAt(0) === '_') {
+        // skip hidden files, special files, and non .js files
+        if (item.leafName.charAt(0) === '.' ||
+            item.leafName.charAt(0) === '_' ||
+            item.leafName.slice(-3) !== '.js')
+        {
             continue;
         }
         //let f = item.clone().append
