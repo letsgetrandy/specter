@@ -61,6 +61,9 @@ function process(testFile) {
             "finish": function() {
                 specter.runTests();
             },
+            "hide": function(s) {
+                specter.hide(s);
+            },
             "log": function(s) {
                 specter.log(s);
             },
@@ -75,6 +78,12 @@ function process(testFile) {
             },
             "perform": function(fn) {
                 specter.perform(fn);
+            },
+            "remove": function(s) {
+                specter.remove(s);
+            },
+            "show": function(s) {
+                specter.show(s);
             },
             "test": function(sizes, fn) {
                 specter.test(sizes, fn);

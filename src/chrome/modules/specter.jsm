@@ -180,6 +180,14 @@ function exit(code) {
     }
 }
 
+function hide(selector) {
+    queue.push(function hideSelector(){
+        var w = browser.contentWindow.wrappedJSObject,
+            el = w.document.querySelector(selector);
+        el.style.display = 'none';
+    });
+}
+
 function log(s) {
     dump(s + "\n");
 }
@@ -275,6 +283,22 @@ function perform(fn) {
     queue.push(fn.bind(specter));
 }
 
+function remove(selector) {
+    queue.push(function removeSelector(){
+        var w = browser.contentWindow.wrappedJSObject,
+            el = w.document.querySelector(selector);
+        el.parentNode.removeChild(el);
+    });
+}
+
+function show(selector) {
+    queue.push(function showSelector(){
+        var w = browser.contentWindow.wrappedJSObject,
+            el = w.document.querySelector(selector);
+        el.style.display = '';
+    });
+}
+
 function taskready() {
     return true;
 }
@@ -330,8 +354,8 @@ function test(sizes, testFunc) {
 }
 
 function wait (delay) {
-    var start = new Date();
     queue.push(function(){
+        var start = new Date();
         taskready = function() {
             return (new Date() - start) > delay;
         };
@@ -383,22 +407,20 @@ var specter = {
     },
 
     exit: exit,
-
+    hide: hide,
     log: log,
-
     onLoad: onLoad,
     onUnload: onUnload,
-
     open: open,
-
     perform: perform,
 
     get ready() {
         return pagedone;
     },
 
+    remove: remove,
     runTests: runTests,
-
+    show: show,
     test: test,
 
     turn_off_animations: function() {
@@ -419,9 +441,7 @@ var specter = {
     },
 
     wait: wait,
-
     waitFor: waitFor,
-
     waitForLoad: waitForLoad,
 
     get window() {
@@ -438,13 +458,16 @@ var specter = {
         config: 'r',
         debug: 'r',
         exit: 'r',
+        hide: 'r',
         log: 'r',
         onLoad: 'r',
         onUnload: 'r',
         open: 'r',
         ready: 'r',
+        remove: 'r',
         runTests: 'r',
         setTestFile: 'r',
+        show: 'r',
         test: 'r',
         testName: 'rw',
         turn_off_animations: 'r',
