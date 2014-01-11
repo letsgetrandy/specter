@@ -139,8 +139,8 @@ you don't see the answers you're looking for there, contact me!
 
 ## Changelog
 
-A list of changes made in each version can be found
-[here](https://github.com/letsgetrandy/specter/wiki/Changelog)
+A list of changes made in each version can be found on the
+[releases page](https://github.com/letsgetrandy/specter/releases)
 
 --------------------------------------
 
