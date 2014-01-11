@@ -17,13 +17,13 @@ install: $(bindir)/specter installcheck update
 
 installcheck: SPECTER-exists
 	@echo "Checking for specter in the path...\c"
-ifeq ($(found_location), $(expected_location))
+ifeq ($(found_version), $(expected_version))
 	@echo "OK"
 else
 	@echo "WARNING\n"
 	@echo "Specter was found in the path, but not in the expected location"
-	@echo "Expected v$(expected_version) in $(expected_location)"
-	@echo "Found v$(found_version) in $(found_location)"
+	@echo "Expected $(expected_version) in $(expected_location)"
+	@echo "Found $(found_version) in $(found_location)"
 	@echo "If you wish to upgrade, run 'sudo make upgrade'."
 endif
 
