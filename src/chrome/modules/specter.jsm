@@ -64,18 +64,18 @@ function capture(selector, filename) {
 
     if (el) {
         if (el.offsetWidth <= 0 || el.offsetHeight <= 0) {
-            log("NotVisibleError: Unable to capture '" + selector + "'.");
+            log("\nNotVisibleError: Unable to capture '" + selector + "'.\n");
             return;
         }
         clip = el.getBoundingClientRect();
     } else {
-        log("NotFoundError: Unable to capture '" + selector + "' in " + testFile.path);
+        log("\nNotFoundError: Unable to capture '" + selector + "' in " + testFile.path + "\n");
         TestResults.error(filename);
         return;
     }
 
     if (!configuration.testroot.contains(testFile, false)) {
-        log('ConfigError: Test files are not within "testroot".');
+        log('\nConfigError: Test files are not within "testroot".\n');
         exit(-255);
     }
     // determine the relative path to the test file from the base dir
@@ -136,7 +136,7 @@ function click(selector) {
         if (el) {
             el.click();
         } else {
-            log("ClickError: element not found '" + selector + "' in " + testFile.path);
+            log("\nClickError: element not found '" + selector + "' in " + testFile.path + "\n");
         }
     });
 }
