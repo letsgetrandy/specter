@@ -93,18 +93,6 @@ CommandLine.prototype = {
         }
         cmdLine.removeArguments(0, argc - 1);
 
-
-        /*
-         * TODO: superfluous
-        if (configuration.args[0].substr(0, 1) == '-') {
-            Components.utils.reportError("unknown option " +
-                    configuration.args[0]);
-            dump("unknown option " + configuration.args[0] + " \n");
-            cmdLine.preventDefault = true;
-            return;
-        }
-        */
-
         /*
          * TODO: should loop in the processing function, not here
          *

@@ -28,6 +28,10 @@ var currentSection = '';
 
 function init() {
     diffdir.append('specter');
+    findIniFiles();
+
+    // TODO: check env here?
+
     for (var i=0; i< configuration.opts.length; i++) {
         var m = configuration.opts[i].match(/--([^=\s]+)=([^\s]+)/);
         if (m) {
@@ -37,11 +41,6 @@ function init() {
             setflag(m[1]);
         }
     }
-    findIniFiles();
-
-    // check env
-
-    // check commandline
 }
 
 function setopt(k, v) {
