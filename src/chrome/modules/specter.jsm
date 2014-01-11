@@ -64,18 +64,19 @@ function capture(selector, filename) {
 
     if (el) {
         if (el.offsetWidth <= 0 || el.offsetHeight <= 0) {
-            log("\nNotVisibleError: Unable to capture '" + selector + "'.\n");
+            log_error("NotVisibleError: Unable to capture '" + selector + "'");
+            TestResults.error(filename);
             return;
         }
         clip = el.getBoundingClientRect();
     } else {
-        log("\nNotFoundError: Unable to capture '" + selector + "' in " + testFile.path + "\n");
+        log_error("NotFoundError: Unable to capture '" + selector + "'");
         TestResults.error(filename);
         return;
     }
 
     if (!configuration.testroot.contains(testFile, false)) {
-        log('\nConfigError: Test files are not within "testroot".\n');
+        log('\nConfigError: Test files are not within "testroot".');
         exit(-255);
     }
     // determine the relative path to the test file from the base dir
@@ -136,7 +137,7 @@ function click(selector) {
         if (el) {
             el.click();
         } else {
-            log("\nClickError: element not found '" + selector + "' in " + testFile.path + "\n");
+            log_error("ClickError: element not found '" + selector + "'");
         }
     });
 }
@@ -190,6 +191,10 @@ function hide(selector) {
 
 function log(s) {
     dump(s + "\n");
+}
+
+function log_error(s) {
+    dump("\n" + s + " in " + testFile.path + "\n\n");
 }
 
 function onLoad(callback) {
