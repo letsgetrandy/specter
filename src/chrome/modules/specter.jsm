@@ -148,6 +148,7 @@ function exit(code) {
     data = 'exit ' + c;
 
     try {
+        if (configuration.outfile) {
         var file = Components.classes["@mozilla.org/file/local;1"]
                        .createInstance(Components.interfaces.nsILocalFile);
         file.initWithPath(configuration.outfile);
@@ -174,6 +175,7 @@ function exit(code) {
         cstream.writeString(data);
         cstream.close();
         fstream.close();
+        }
     //} catch(ex) {
     //    log(ex);
     } finally {
