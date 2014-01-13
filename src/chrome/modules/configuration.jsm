@@ -67,6 +67,16 @@ function setopt(k, v) {
         case 'hostname':
             hostname = v;
             break;
+        case 'hostnames':
+            dump('hostnames...\n');
+            let names = v.split(/,/);
+            for (let i in names) {
+                let s = names[i].split(/=/);
+                if (s.length > 1) {
+                    hostnames[s[0]] = s[1];
+                }
+            }
+            break;
         case 'testroot':
             if (v.charAt(0) !== '/') {
                 v = currentWorkingDirectory.path + '/' + v;

@@ -21,6 +21,7 @@ function startup() {
             dump('baseline = ' + configuration.baseline.path + '\n');
             dump('testroot = ' + configuration.testroot.path + '\n');
             dump('diffdir = ' + configuration.diffdir.path + '\n');
+            dump('hostnames = ' + JSON.stringify(configuration.hostnames) + '\n');
         }
         if (configuration.notests) {
             specter.exit(0);
