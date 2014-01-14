@@ -149,34 +149,34 @@ function exit(code) {
 
     try {
         if (configuration.outfile) {
-        var file = Components.classes["@mozilla.org/file/local;1"]
-                       .createInstance(Components.interfaces.nsILocalFile);
-        file.initWithPath(configuration.outfile);
-        if (!file.exists()) {
-            file.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE,
-                parseInt('0666', 8));
-        }
-        var fstream =
-                Components.classes["@mozilla.org/network/file-output-stream;1"]
-                    .createInstance(Components.interfaces.nsIFileOutputStream);
-        fstream.init(file, 2, 0x200, false);
-        var cstream =
-                Components.classes["@mozilla.org/intl/converter-output-stream;1"]
-                    .createInstance(Components.interfaces.nsIConverterOutputStream);
-        cstream.init(fstream, 'UTF-8', data.length,
-                Components.interfaces.nsIConverterInputStream.DEFAULTREPLACEMENT_CHARACTER);
+            var file = Components.classes["@mozilla.org/file/local;1"]
+                           .createInstance(Components.interfaces.nsILocalFile);
+            file.initWithPath(configuration.outfile);
+            if (!file.exists()) {
+                file.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE,
+                    parseInt('0666', 8));
+            }
+            var fstream =
+                    Components.classes["@mozilla.org/network/file-output-stream;1"]
+                        .createInstance(Components.interfaces.nsIFileOutputStream);
+            fstream.init(file, 2, 0x200, false);
+            var cstream =
+                    Components.classes["@mozilla.org/intl/converter-output-stream;1"]
+                        .createInstance(Components.interfaces.nsIConverterOutputStream);
+            cstream.init(fstream, 'UTF-8', data.length,
+                    Components.interfaces.nsIConverterInputStream.DEFAULTREPLACEMENT_CHARACTER);
 
-        // if a failviewer is defined run it for failed diffs
-        if (TestResults.failCount > 0 && configuration.failviewer) {
-            cstream.writeString(configuration.failviewer + ' ' +
-                    TestResults.failedTests.join(' ') + '\n');
-        }
+            // if a failviewer is defined run it for failed diffs
+            if (TestResults.failCount > 0 && configuration.failviewer) {
+                cstream.writeString(configuration.failviewer + ' ' +
+                        TestResults.failedTests.join(' ') + '\n');
+            }
 
-        cstream.writeString(data);
-        cstream.close();
-        fstream.close();
+            cstream.writeString(data);
+            cstream.close();
+            fstream.close();
         }
-    //} catch(ex) {
+    } catch(ex) {
     //    log(ex);
     } finally {
         Services.startup.quit(Components.interfaces.nsIAppStartup.eForceQuit);
@@ -261,6 +261,11 @@ function getURL(uri) {
     // check for relative URL
     if (uri.indexOf('://') < 0) {
 
+        // if hostname specified, override everything
+        if (configuration.hostname) {
+            return configuration.hostname + uri;
+        }
+
         // determine the relative path to the test file from the base dir
         let _dirs = [], _testfile = testFile.clone();
         while (!_testfile.equals(configuration.testroot)) {
@@ -269,18 +274,17 @@ function getURL(uri) {
         }
         let _path = _dirs.join('/');
 
+        // check for a hostname defined on a path
         for (path in configuration.hostnames) {
             if (_path.indexOf(path) === 0) {
                 return configuration.hostnames[path] + uri;
             }
         }
-        if (configuration.hostname) {
-            return configuration.hostname + uri;
-        } else {
-            let dir = testFile.parent.clone();
-            dir.append(uri);
-            return 'file://' + dir.path;
-        }
+
+        // otherwise, treat it as a relative file
+        let dir = testFile.parent.clone();
+        dir.append(uri);
+        return 'file://' + dir.path;
     } else {
         return uri;
     }
