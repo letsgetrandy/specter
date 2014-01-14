@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>Specter test harness</title>
+<style>
+#test_failure {
+    background:#ccc;
+    padding:20px;
+}
+
+#test_click .a {
+    background:#9cf;
+    padding:20px;
+}
+#test_click.clicked .a {
+    display:none;
+}
+#test_click .b {
+    background:#cce;
+    display:none;
+    padding:20px;
+}
+#test_click.clicked .b {
+    display:block;
+}
+
+
+</style>
+</head>
+<body>
+    <div id="test_capture">
+        <b>hello world</b>
+    </div>
+
+    <div id="test_click" onclick="document.getElementById('test_click').className='clicked';">
+        <div class="a">unclicked content</div>
+        <div class="b">clicked content</div>
+    </div>
+
+    <div id="test_failure">
+        This should be a failure
+    </div>
+
+    <div id="">
+    </div>
+
+    <div id="">
+    </div>
+<script>
+//
+</script>
+</body>
+</html>

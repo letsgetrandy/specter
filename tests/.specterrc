@@ -1,0 +1,6 @@
+[paths]
+baseline = baseline
+testroot = testfiles
+diffdir = diffs
+failviewer = rm
+

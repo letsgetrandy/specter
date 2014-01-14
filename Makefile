@@ -13,6 +13,9 @@ xul: bin/omni.ja bin/application.ini bin/specter bin/specter-remote
 	@echo "done."
 	@echo "run 'sudo make install' to install"
 
+test:
+	cd tests && ./test.sh
+
 install: $(bindir)/specter $(bindir)/specter-remote installcheck update
 
 installcheck: SPECTER-exists
