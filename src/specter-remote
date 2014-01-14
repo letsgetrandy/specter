@@ -1,0 +1,186 @@
+#! /bin/bash
+
+# to run this command without typing passwords over and over,
+# upload your public key to the host:
+#
+# ssh analyte@tp3147.stx.com 'cat >> ~/.ssh/authorized_keys' < ~/.ssh/id_rsa.pub
+
+
+usage() {
+    echo << EOF
+    $0 [dir]
+EOF
+}
+
+MYIP=$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' | sed -n 1p)
+HOSTNAME=http://$MYIP
+echo default hostname: $HOSTNAME
+
+
+# check for remote conf in .specterrc
+if [ -f .specterrc ]; then
+    USER=$(awk -F "=" '/remote_user/ {print $2}' .specterrc | sed -e 's/^ *//g' -e 's/ *$//g')
+    HOST=$(awk -F "=" '/remote_host/ {print $2}' .specterrc | sed -e 's/^ *//g' -e 's/ *$//g')
+    TESTROOT=$(awk -F "=" '/testroot/ {print $2}' .specterrc | sed -e 's/^ *//g' -e 's/ *$//g')
+    BASELINE=$(awk -F "=" '/baseline/ {print $2}' .specterrc | sed -e 's/^ *//g' -e 's/ *$//g')
+fi
+
+# default username "specter" if none defined
+if [ -z $USER ]; then
+    USER=specter
+fi
+
+ARGS=("$@")
+testfiles=()
+options=()
+
+while [ ${#ARGS[@]} -gt 0 ]; do
+
+    arg="${ARGS[0]}"
+
+    case "$arg" in
+        --rebase)
+            rebase=1
+            options+=("$arg")
+            ARGS=(${ARGS[@]:1})
+            ;;
+        --hostname)
+            #echo "hostname: ${ARGS[1]}"
+            HOSTNAME=${ARGS[1]}
+            ARGS=(${ARGS[@]:2})
+            ;;
+        --port)
+            HOSTNAME=http://$MYIP:${ARGS[1]}
+            ARGS=(${ARGS[@]:2})
+            ;;
+    #    --testroot)
+    #        TESTROOT=$DIRECTORY/${ARGS[1]}
+    #        ARGS=(${ARGS[@]:2})
+    #        ;;
+    #    --baseline)
+    #        BASELINE=$DIRECTORY/${ARGS[1]}
+    #        ARGS=(${ARGS[@]:2})
+    #        ;;
+        --user)
+            USER=${ARGS[1]}
+            ARGS=(${ARGS[@]:2})
+            ;;
+        --host)
+            HOST=${ARGS[1]}
+            ARGS=(${ARGS[@]:2})
+            ;;
+        --)
+            ARGS=(${ARGS[@]:1})
+            break
+            ;;
+        *)
+            if [[ $arg == --* ]]; then
+                options+=("$arg")
+            else
+                testfiles+=("$arg")
+            fi
+            ARGS=(${ARGS[@]:1})
+
+            #if [[ $arg == --* ]]; then
+            #    echo "unrecognized option: $arg"
+            #    exit
+            #fi
+            #testfiles+=("$arg")
+            ##echo $arg
+            #ARGS=(${ARGS[@]:1})
+            ;;
+    esac
+done
+
+
+LOGIN=${USER}@${HOST}
+
+
+# check for SSH enabled login
+
+expect << EOD > /dev/null 2>&1
+set timeout 1
+spawn -noecho ssh $LOGIN
+expect "*assword*" { exit -1 }
+EOD
+
+if [ $? -ne 0 ]; then
+    echo OOPS! The server asked for a password.
+    if [ ! -e $HOME/.ssh/id_rsa.pub ]; then
+        echo Please generate a public key with the following command:
+        echo
+        echo "   ssh-keygen -t rsa -C \"your_email@example.com\""
+        echo
+        echo And then,
+    fi
+    echo Run the following command to install your public key:
+    echo
+    echo "   ssh $LOGIN 'cat >> ~/.ssh/authorized_keys' < ~/.ssh/id_rsa.pub"
+    echo
+    exit -1
+fi
+
+
+
+# Made it here? Then we should be good to go!
+
+
+NONCE=$RANDOM
+DIRECTORY="~$USER/specter-$NONCE"
+ZIPFILE=specter-${NONCE}.zip
+
+# use params to build zip
+echo Zipping tests and baselines...
+zip -qr ${ZIPFILE} ${TESTROOT} ${BASELINE}
+
+# scp the zip to the remote server
+echo Pushing to remote host...
+scp -q ${ZIPFILE} ${LOGIN}:${ZIPFILE}
+
+# delete the local archive
+rm ${ZIPFILE}
+
+# unzip the archive remotely
+echo Unpacking remote archive...
+ssh ${LOGIN} "mkdir ${DIRECTORY} && unzip -q ${ZIPFILE} -d ${DIRECTORY}"
+
+# call specter
+echo Starting Specter...
+echo ssh ${LOGIN} "cd ${DIRECTORY} && xvfb-run --auto-servernum --server-args='-screen 0 1280x768x24' specter --testroot=${TESTROOT} --baseline=${BASELINE} --diffdir=failures --hostname=${HOSTNAME} ${options} ${testfiles}"
+ssh ${LOGIN} "cd ${DIRECTORY} && xvfb-run --auto-servernum --server-args='-screen 0 1280x768x24' specter --testroot=${TESTROOT} --baseline=${BASELINE} --diffdir=failures --hostname=${HOSTNAME} ${options} ${testfiles}"
+
+# zip results
+echo Zipping results...
+ssh ${LOGIN} "rm ${ZIPFILE} && cd ${DIRECTORY} && [ -d failures ] && zip -qr ../${ZIPFILE} failures"
+if [ $rebase -eq 1 ]; then
+    ssh ${LOGIN} "cd ${DIRECTORY} && zip -qr ../${ZIPFILE} $(dirname ${testfiles/$TESTROOT/$BASELINE})"
+fi
+
+# scp results back here
+echo Pulling remote archive...
+scp -q ${LOGIN}:${ZIPFILE} .
+
+# remove temp directories
+echo Cleaning up...
+ssh ${LOGIN} "rm ${ZIPFILE} && rm -rf ${DIRECTORY}"
+
+# update any files that were rebased
+if [ $rebase -eq 1 ]; then
+    unzip -oq ${ZIPFILE} "${BASELINE}/*"
+fi
+
+# clean any old temp dir
+if [ -e $HOME/specter.tmp ]; then
+    rm -rf $HOME/specter.tmp
+fi
+
+# extract the failures
+unzip -qt ${ZIPFILE} failures && unzip -oq ${ZIPFILE} failures -d $HOME/specter.tmp
+
+# remove the archive
+rm ${ZIPFILE}
+
+# open the failures folder
+[ -d $HOME/specter.tmp ] && open $HOME/specter.tmp
+
+echo Done.

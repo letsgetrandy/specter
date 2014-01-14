@@ -9,11 +9,11 @@ expected_location = $(bindir)/specter
 expected_version = specter 0.5
 
 
-xul: bin/omni.ja bin/application.ini bin/specter
+xul: bin/omni.ja bin/application.ini bin/specter bin/specter-remote
 	@echo "done."
 	@echo "run 'sudo make install' to install"
 
-install: $(bindir)/specter installcheck update
+install: $(bindir)/specter $(bindir)/specter-remote installcheck update
 
 installcheck: SPECTER-exists
 	@echo "Checking for specter in the path...\c"
@@ -28,8 +28,8 @@ else
 endif
 
 uninstall:
-	#rm $(srcdir)/specter
 	@rm $(bindir)/specter
+	@rm $(bindir)/specter-remote
 
 update:
 	@echo "Updating .specterrc files"
@@ -42,12 +42,17 @@ upgrade: uninstall clean gitpull xul install
 
 clean:
 	@rm bin/specter
+	@rm bin/specter-remote
 	@rm bin/omni.ja
 	@rm bin/application.ini
 
 $(bindir)/specter:
 	@ln -s $(srcdir)/bin/specter $(bindir)/specter
 	@chmod 755 $(bindir)/specter
+
+$(bindir)/specter-remote:
+	@ln -s $(srcdir)/bin/specter-remote $(bindir)/specter-remote
+	@chmod 755 $(bindir)/specter-remote
 
 SPECTER-exists:
 	@echo "Checking for specter...\c"
@@ -64,6 +69,9 @@ bin/omni.ja:
 
 bin/specter:
 	@cp src/specter bin/.
+
+bin/specter-remote:
+	@cp src/specter-remote bin/.
 
 .PHONY : all install uninstall installcheck clean SPECTER-exists \
 	PHANTOMJS CASPERJS PYTHON

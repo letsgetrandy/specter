@@ -5,3 +5,4 @@ screenshots
 bin/application.ini
 bin/omni.ja
 bin/specter
+bin/specter-remote
