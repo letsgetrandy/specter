@@ -83,8 +83,6 @@ $ sudo make install
 <div class="highlight highlight-javascript"><pre><span class="nx">open</span><span class="p">(</span><span class="s2">"http://www.google.com/"</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
 
     <span class="nx">test</span><span class="p">([</span><span class="mi">960</span><span class="p">,</span> <span class="mi">640</span><span class="p">,</span> <span class="mi">320</span><span class="p">],</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nx">capture</span><span class="p">(</span><span class="s2">"#header"</span><span class="p">,</span> <span class="s2">"header"</span><span class="p">);</span>
-        <span class="nx">capture</span><span class="p">(</span><span class="s2">"#login"</span><span class="p">,</span> <span class="s2">"login-box"</span><span class="p">);</span>
         <span class="nx">capture</span><span class="p">(</span><span class="s2">"#footer"</span><span class="p">,</span> <span class="s2">"footer"</span><span class="p">);</span>
     <span class="p">});</span>
 
@@ -140,13 +138,25 @@ in the current working directory, or any directory above it.</li>
 <span class="nv">testroot</span> <span class="o">=</span> static/styles/tests
 <span class="nv">baseline</span> <span class="o">=</span> static/styles/screenshots
 <span class="nv">diffdir</span>  <span class="o">=</span> /tmp/specter
+
+<span class="o">[</span>hostnames<span class="o">]</span>
+<span class="nv">mycoolsite</span> <span class="o">=</span> http://localhost:5000
+<span class="nv">myothersite</span> <span class="o">=</span> http://localhost:8080
 </pre></div>
 
-<p><strong>testroot</strong> is the folder that contains all the test files to run</p>
+<p><strong>testroot</strong> is the folder that contains all the test files to run. No value
+is required here, but specifying the root directory of your tests will help
+Specter to put your baseline and diff images into more meaningful directories.</p>
 
 <p><strong>baseline</strong> is the directory in which baseline screen captures should be stored</p>
 
-<p><strong>diffdir</strong> is where diff images are stored for comparison later</p>
+<p><strong>diffdir</strong> is where diff images are stored for comparison later. This is
+typically a temp directory of some kind.</p>
+
+<p><strong>[hostnames]</strong> allows you to define custom hostnames where tests should be run.
+In this example, <code>mycoolsite</code> and <code>myothersite</code> are directories directly below
+the <em>testroot</em> (<code>static/styles/tests</code>), which is a path relative to the
+location of the <code>.specterrc</code> file.</p>
 
 <h2>
 <a name="questions" class="anchor" href="#questions"><span class="octicon octicon-link"></span></a>Questions?</h2>
@@ -156,13 +166,10 @@ a look at the <a href="https://github.com/letsgetrandy/specter/wiki/FAQ">FAQ</a>
 you don't see the answers you're looking for there, contact me!</p>
 
 <h2>
-<a name="notes" class="anchor" href="#notes"><span class="octicon octicon-link"></span></a>Notes</h2>
+<a name="changelog" class="anchor" href="#changelog"><span class="octicon octicon-link"></span></a>Changelog</h2>
 
-<p><em>Relative paths in .specterrc files are relative to that file.</em></p>
-
-<p><em>v-0.3 note: baselines made with v-0.2 are not compatible with v-0.3.</em></p>
-
-<p><em>v-0.2 note: the "specter" section in the rc files has been replaced by "paths" and "args" sections.</em></p>
+<p>A list of changes made in each version can be found on the
+<a href="https://github.com/letsgetrandy/specter/releases">releases page</a></p>
 
 <hr><p>Created and maintained by <a href="http://github.com/letsgetrandy">Randy Hunt</a></p>
 
@@ -178,6 +185,8 @@ and by <a href="https://github.com/laurentj/slimerjs">SlimerJS</a>.</p>
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
+
+    
 
   </body>
 </html>
