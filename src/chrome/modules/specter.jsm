@@ -222,7 +222,11 @@ function open(uri, callback) {
         addLoadListener(callback);
 
         try {
-            browser.loadURI(getURL(uri), null, null);
+            var url = getURL(uri);
+            if (configuration.debug) {
+                log('opening ' + url);
+            }
+            browser.loadURI(url, null, null);
             //browser.webNavigation.loadURI(uri,
             //    0, null, null, null);
         } catch(ex) {
