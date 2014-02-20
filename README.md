@@ -1,3 +1,5 @@
+[![Stories in Ready](https://badge.waffle.io/letsgetrandy/specter.png?label=ready)](https://waffle.io/letsgetrandy/specter)
+
 Specter
 =======
 
