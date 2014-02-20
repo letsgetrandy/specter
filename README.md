@@ -1,4 +1,4 @@
-[![Stories in Backlog](https://badge.waffle.io/letsgetrandy/specter.png?label=backlog)](https://waffle.io/letsgetrandy/specter)
+[![Stories in Ready](https://badge.waffle.io/letsgetrandy/specter.png?label=ready)](https://waffle.io/letsgetrandy/specter)
 
 Specter
 =======
