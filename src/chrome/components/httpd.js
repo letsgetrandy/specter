@@ -121,8 +121,9 @@ this.HTTP_505 = new HttpError(505, "HTTP Version Not Supported");
 function array2obj(arr)
 {
     var obj = {};
-    for (var i = 0; i < arr.length; i++)
+    for (var i = 0; i < arr.length; i++) {
         obj[arr[i]] = arr[i];
+    }
     return obj;
 }
 
@@ -130,8 +131,9 @@ function array2obj(arr)
 function range(x, y)
 {
     var arr = [];
-    for (var i = x; i <= y; i++)
+    for (var i = x; i <= y; i++) {
         arr.push(i);
+    }
     return arr;
 }
 
@@ -168,17 +170,18 @@ function dumpn(str)
         var prefix = "HTTPD-INFO | ";
         if (DEBUG_TIMESTAMP)
         {
-            if (firstStamp === 0)
+            if (firstStamp === 0) {
                 firstStamp = Date.now();
-
+            }
             var elapsed = Date.now() - firstStamp; // milliseconds
             var min = Math.floor(elapsed / 60000);
             var sec = (elapsed % 60000) / 1000;
 
-            if (sec < 10)
+            if (sec < 10) {
                 prefix += min + ":0" + sec.toFixed(3) + " | ";
-            else
+            } else {
                 prefix += min + ":" + sec.toFixed(3) + " | ";
+            }
         }
         dump(prefix + str + "\n");
     }
@@ -333,7 +336,9 @@ function printObj(o, showMembers)
   {
     if (typeof(i) != "string" ||
         (showMembers || (i.length > 0 && i[0] != "_")))
+    {
       s+= "      " + i + ": " + o[i] + ",\n";
+    }
   }
   s +=    "    };\n";
   s +=    "******************************";
@@ -496,9 +501,9 @@ nsHttpServer.prototype =
 
   _start: function(port, host)
   {
-    if (this._socket)
+    if (this._socket) {
       throw Cr.NS_ERROR_ALREADY_INITIALIZED;
-
+    }
     this._port = port;
     this._doQuit = this._socketClosed = false;
 
@@ -700,8 +705,9 @@ nsHttpServer.prototype =
     if (iid.equals(Ci.nsIHttpServer) ||
         iid.equals(Ci.nsIServerSocketListener) ||
         iid.equals(Ci.nsISupports))
+    {
       return this;
-
+    }
     throw Cr.NS_ERROR_NO_INTERFACE;
   },
 
@@ -781,8 +787,9 @@ nsHttpServer.prototype =
     delete this._connections[connection.number];
 
     // Fire a pending server-stopped notification if it's our responsibility.
-    if (!this._hasOpenConnections() && this._socketClosed)
-      this._notifyStopped();
+    if (!this._hasOpenConnections() && this._socketClosed) {
+        this._notifyStopped();
+    }
     // Bug 508125: Add a GC here else we'll use gigabytes of memory running
     // mochitests. We can't rely on xpcshell doing an automated GC, as that
     // would interfere with testing GC stuff...
@@ -888,8 +895,9 @@ ServerIdentity.prototype =
   //
   get primaryHost()
   {
-    if (this._primaryPort === -1)
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+    if (this._primaryPort === -1) {
+        throw Cr.NS_ERROR_NOT_INITIALIZED;
+    }
     return this._primaryHost;
   },
 
@@ -898,8 +906,9 @@ ServerIdentity.prototype =
   //
   get primaryPort()
   {
-    if (this._primaryPort === -1)
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+    if (this._primaryPort === -1) {
+        throw Cr.NS_ERROR_NOT_INITIALIZED;
+    }
     return this._primaryPort;
   },
 
@@ -2039,8 +2048,9 @@ function defaultIndexHandler(metadata, response)
     try
     {
       var name = file.leafName;
-      if (name.charAt(name.length - 1) == HIDDEN_CHAR)
-        name = name.substring(0, name.length - 1);
+      if (name.charAt(name.length - 1) == HIDDEN_CHAR) {
+          name = name.substring(0, name.length - 1);
+      }
       var sep = file.isDirectory() ? "/" : "";
 
       // Note: using " to delimit the attribute here because encodeURIComponent
@@ -2054,7 +2064,7 @@ function defaultIndexHandler(metadata, response)
     catch (e) { /* some file system error, ignore the file */ }
   }
 
-  body    += '    </ol>\
+  body += '    </ol>\
                 </body>\
               </html>';
 
@@ -2123,15 +2133,15 @@ const PERMS_READONLY = (4 << 6) | (4 << 3) | 4;
 function maybeAddHeaders(file, metadata, response)
 {
   var name = file.leafName;
-  if (name.charAt(name.length - 1) == HIDDEN_CHAR)
+  if (name.charAt(name.length - 1) == HIDDEN_CHAR) {
     name = name.substring(0, name.length - 1);
-
+  }
   var headerFile = file.parent;
   headerFile.append(name + HEADERS_SUFFIX);
 
-  if (!headerFile.exists())
+  if (!headerFile.exists()) {
     return;
-
+  }
   const PR_RDONLY = 0x01;
   var fis = new FileInputStream(headerFile, PR_RDONLY, PERMS_READONLY,
                                 Ci.nsIFileInputStream.CLOSE_ON_EOF);
