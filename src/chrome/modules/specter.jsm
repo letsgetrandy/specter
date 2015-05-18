@@ -1,3 +1,4 @@
+/*global Components:false */
 /*jshint esnext:true */
 
 var EXPORTED_SYMBOLS = ["specter"];
@@ -37,9 +38,10 @@ var _version = {
     }
 };
 function checkInt(val) {
-    let v = parseInt(val)
-    if (isNaN(v))
+    let v = parseInt(val);
+    if (isNaN(v)) {
         return 0;
+    }
     return v;
 }
 
@@ -239,9 +241,9 @@ function open(uri, callback) {
 
 function waitForLoad() {
     queue.push(function() {
-        taskready = function() { return false; }
+        taskready = function() { return false; };
         addLoadListener(function loadDone() {
-            taskready = function() { return true; }
+            taskready = function() { return true; };
         });
     });
 }

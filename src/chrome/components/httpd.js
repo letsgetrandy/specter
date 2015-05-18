@@ -3705,13 +3705,15 @@ Response.prototype =
     {
       var input = new BinaryInputStream(this._bodyInputStream);
       var avail;
-      while ((avail = input.available()) > 0)
+      while ((avail = input.available()) > 0) {
         input.readByteArray(avail);
+      }
     }
 
     this._powerSeized = true;
-    if (this._bodyOutputStream)
+    if (this._bodyOutputStream) {
       this._startAsyncProcessor();
+    }
   },
 
   //
@@ -3719,11 +3721,12 @@ Response.prototype =
   //
   finish: function()
   {
-    if (!this._processAsync && !this._powerSeized)
+    if (!this._processAsync && !this._powerSeized) {
       throw Cr.NS_ERROR_UNEXPECTED;
-    if (this._finished)
+    }
+    if (this._finished) {
       return;
-
+    }
     dumpn("*** finishing connection " + this._connection.number);
     this._startAsyncProcessor(); // in case bodyOutputStream was never accessed
     if (this._bodyOutputStream)
@@ -3996,8 +3999,9 @@ Response.prototype =
                               .QueryInterface(Ci.nsISupportsString)
                               .data;
       var values = headers.getHeaderValues(fieldName);
-      for (var i = 0, sz = values.length; i < sz; i++)
+      for (var i = 0, sz = values.length; i < sz; i++) {
         preambleData.push(fieldName + ": " + values[i] + "\r\n");
+      }
     }
 
     // end request-line/headers
@@ -4770,13 +4774,13 @@ const headerUtils =
 
     // that should have taken care of all CTLs, so val should contain no CTLs
     dumpn("*** Normalized value: '" + val + "'");
-    for (var i = 0, len = val.length; i < len; i++)
+    for (var i = 0, len = val.length; i < len; i++) {
       if (isCTL(val.charCodeAt(i)))
       {
         dump("*** Char " + i + " has charcode " + val.charCodeAt(i));
         throw Cr.NS_ERROR_INVALID_ARG;
       }
-
+    }
     // XXX disallows quoted-pair where CHAR is a CTL -- will not invalidly
     //     normalize, however, so this can be construed as a tightening of the
     //     spec and not entirely as a bug
@@ -4799,8 +4803,9 @@ function htmlEscape(str)
 {
   // this is naive, but it'll work
   var s = "";
-  for (var i = 0; i < str.length; i++)
+  for (var i = 0; i < str.length; i++) {
     s += "&#" + str.charCodeAt(i) + ";";
+  }
   return s;
 }
 
@@ -5220,9 +5225,9 @@ Request.prototype =
   //
   QueryInterface: function(iid)
   {
-    if (iid.equals(Ci.nsIHttpRequest) || iid.equals(Ci.nsISupports))
+    if (iid.equals(Ci.nsIHttpRequest) || iid.equals(Ci.nsISupports)) {
       return this;
-
+    }
     throw Cr.NS_ERROR_NO_INTERFACE;
   },
 
