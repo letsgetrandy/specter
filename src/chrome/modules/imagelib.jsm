@@ -1,3 +1,4 @@
+/*global Components: false, Services: false */
 /*jshint esnext:true */
 
 var EXPORTED_SYMBOLS = ["imagelib"];

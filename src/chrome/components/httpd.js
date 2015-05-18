@@ -335,7 +335,7 @@ function printObj(o, showMembers)
   for (var i in o)
   {
     if (typeof(i) != "string" ||
-        (showMembers || (i.length > 0 && i[0] != "_")))
+        (showMembers || (i.length > 0 && i[0] !== "_")))
     {
       s+= "      " + i + ": " + o[i] + ",\n";
     }
@@ -574,9 +574,9 @@ nsHttpServer.prototype =
   //
   registerFile: function(path, file)
   {
-    if (file && (!file.exists() || file.isDirectory()))
+    if (file && (!file.exists() || file.isDirectory())) {
       throw Cr.NS_ERROR_INVALID_ARG;
-
+    }
     this._handler.registerFile(path, file);
   },
 
@@ -586,12 +586,13 @@ nsHttpServer.prototype =
   registerDirectory: function(path, directory)
   {
     // XXX true path validation!
-    if (path.charAt(0) != "/" ||
-        path.charAt(path.length - 1) != "/" ||
+    if (path.charAt(0) !== "/" ||
+        path.charAt(path.length - 1) !== "/" ||
         (directory &&
          (!directory.exists() || !directory.isDirectory())))
+    {
       throw Cr.NS_ERROR_INVALID_ARG;
-
+    }
     // XXX determine behavior of nonexistent /foo/bar when a /foo/bar/ mapping
     //     exists!
 
@@ -736,8 +737,9 @@ nsHttpServer.prototype =
     // looking forward to ES5, there's no less ugly yet still O(1) way to do
     // this.
     //
-    for (var n in this._connections)
+    for (var n in this._connections) {
       return true;
+    }
     return false;
   },
 
@@ -747,8 +749,9 @@ nsHttpServer.prototype =
     NS_ASSERT(this._stopCallback !== null, "double-notifying?");
     NS_ASSERT(!this._hasOpenConnections(), "should be done serving by now");
 
-    if (this._stopCallback === undefined)
+    if (this._stopCallback === undefined) {
         return;
+    }
     //
     // NB: We have to grab this now, null out the member, *then* call the
     //     callback here, or otherwise the callback could (indirectly) futz with
@@ -934,15 +937,15 @@ ServerIdentity.prototype =
     this._validate(scheme, host, port);
 
     var entry = this._locations["x" + host];
-    if (!entry)
+    if (!entry) {
       return false;
-
+    }
     var present = port in entry;
     delete entry[port];
 
-    if (this._primaryScheme == scheme &&
-        this._primaryHost == host &&
-        this._primaryPort == port &&
+    if (this._primaryScheme === scheme &&
+        this._primaryHost === host &&
+        this._primaryPort === port &&
         this._defaultPort !== -1)
     {
       // Always keep at least one identity in existence at any time, unless
@@ -1035,16 +1038,16 @@ ServerIdentity.prototype =
    */
   _teardown: function()
   {
-    if (this._host != "127.0.0.1") {
+    if (this._host !== "127.0.0.1") {
       // Not the default primary location, nothing special to do here
       this.remove("http", "127.0.0.1", this._defaultPort);
     }
 
     // This is a *very* tricky bit of reasoning here; make absolutely sure the
     // tests for this code pass before you commit changes to it.
-    if (this._primaryScheme == "http" &&
-        this._primaryHost == this._host &&
-        this._primaryPort == this._defaultPort)
+    if (this._primaryScheme === "http" &&
+        this._primaryHost === this._host &&
+        this._primaryPort === this._defaultPort)
     {
       // Make sure we don't trigger the readding logic in .remove(), then remove
       // the default location.
@@ -1332,16 +1335,18 @@ RequestReader.prototype =
         /* fall through */
 
       case READER_IN_HEADERS:
-        if (!this._processHeaders())
+        if (!this._processHeaders()) {
           break;
+        }
         /* fall through */
 
       case READER_IN_BODY:
         this._processBody();
     }
 
-    if (this._state != READER_FINISHED)
+    if (this._state !== READER_FINISHED) {
       input.asyncWait(this, 0, 0, gThreadManager.currentThread);
+    }
   },
 
   //
@@ -1351,8 +1356,9 @@ RequestReader.prototype =
   {
     if (aIID.equals(Ci.nsIInputStreamCallback) ||
         aIID.equals(Ci.nsISupports))
+    {
       return this;
-
+    }
     throw Cr.NS_ERROR_NO_INTERFACE;
   },
 
@@ -1367,20 +1373,20 @@ RequestReader.prototype =
    */
   _processRequestLine: function()
   {
-    NS_ASSERT(this._state == READER_IN_REQUEST_LINE);
+    NS_ASSERT(this._state === READER_IN_REQUEST_LINE);
 
     // Servers SHOULD ignore any empty line(s) received where a Request-Line
     // is expected (section 4.1).
     var data = this._data;
     var line = {};
     var readSuccess;
-    while ((readSuccess = data.readLine(line)) && line.value == "")
+    while ((readSuccess = data.readLine(line)) && line.value === "") {
       dumpn("*** ignoring beginning blank line...");
-
+    }
     // if we don't have a full line, wait until we do
-    if (!readSuccess)
+    if (!readSuccess) {
       return false;
-
+    }
     // we have the first non-blank line
     try
     {
@@ -1464,7 +1470,7 @@ RequestReader.prototype =
       }
 
       dumpn("*** remaining body data len=" + this._contentLength);
-      if (this._contentLength == 0)
+      if (this._contentLength === 0)
       {
         this._validateRequest();
         this._state = READER_FINISHED;
@@ -1489,7 +1495,7 @@ RequestReader.prototype =
    */
   _validateRequest: function()
   {
-    NS_ASSERT(this._state == READER_IN_BODY);
+    NS_ASSERT(this._state === READER_IN_BODY);
 
     dumpn("*** _validateRequest");
 
@@ -1643,7 +1649,7 @@ RequestReader.prototype =
     // clients and servers SHOULD accept any amount of SP or HT characters
     // between fields, even though only a single SP is required (section 19.3)
     var request = line.split(/[ \t]+/);
-    if (!request || request.length != 3)
+    if (!request || request.length !== 3)
     {
       dumpn("*** No request in line");
       throw HTTP_400;
@@ -2078,11 +2084,12 @@ function fileSort(a, b)
 {
   var dira = a.isDirectory(), dirb = b.isDirectory();
 
-  if (dira && !dirb)
-    return -1;
-  if (dirb && !dira)
+  if (dira && !dirb) {
+    return -1
+  };
+  if (dirb && !dira) {
     return 1;
-
+  }
   var namea = a.leafName.toLowerCase(), nameb = b.leafName.toLowerCase();
   return nameb > namea ? -1 : 1;
 }
@@ -3043,25 +3050,27 @@ ServerHandler.prototype =
         //     requested path was /foo/bar, because relative links on the page
         //     will all be incorrect -- we really need the ability to easily
         //     redirect here instead
-        if (tmp == path.substring(1) &&
+        if (tmp === path.substring(1) &&
             tmp.length != 0 &&
             tmp.charAt(tmp.length - 1) != "/")
+        {
           file = null;
-        else
+        } else {
           break;
+        }
       }
 
       // if we've finished trying all prefixes, exit
-      if (tmp == "")
+      if (tmp === "") {
         break;
-
+      }
       tmp = tmp.substring(0, tmp.lastIndexOf("/"));
     }
 
     // no mapping applies, so 404
-    if (!file)
+    if (!file) {
       throw HTTP_404;
-
+    }
 
     // last, get the file for the path within the determined directory
     var parentFolder = file.parent;
@@ -3078,15 +3087,16 @@ ServerHandler.prototype =
     {
       var comp = comps[i];
 
-      if (comp == "..")
+      if (comp === "..") {
         file = file.parent;
-      else if (comp == "." || comp == "")
+      } else if (comp == "." || comp == "") {
         continue;
-      else
+      } else {
         file.append(comp);
-
-      if (!dirIsRoot && file.equals(parentFolder))
+      }
+      if (!dirIsRoot && file.equals(parentFolder)) {
         throw HTTP_403;
+      }
     }
 
     return file;

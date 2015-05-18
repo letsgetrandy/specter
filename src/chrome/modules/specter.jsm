@@ -1,4 +1,4 @@
-/*global Components:false */
+/*global Components:false, Services:false, File:false, TestResults:true, configuration:false */
 /*jshint esnext:true */
 
 var EXPORTED_SYMBOLS = ["specter"];
@@ -355,18 +355,20 @@ function test(sizes, testFunc) {
         sizes = [sizes];
     }
     for (let size in sizes) {
-        let mysize = String(sizes[size]);
+        if (sizes.hasOwnProperty(size) {
+            let mysize = String(sizes[size]);
 
-        queue.push(function(){
-            pagesize = mysize;
-            let s = pagesize.split(/[x:,-]/);
-            if (s.length > 1) {
-                setViewport(s[0], s[1]);
-            } else {
-                setViewport(s[0], 400);
-            }
-        });
-        queue.push(testFunc);
+            queue.push(function(){
+                pagesize = mysize;
+                let s = pagesize.split(/[x:,-]/);
+                if (s.length > 1) {
+                    setViewport(s[0], s[1]);
+                } else {
+                    setViewport(s[0], 400);
+                }
+            });
+            queue.push(testFunc);
+        }
     }
 }
 
