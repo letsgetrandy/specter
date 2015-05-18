@@ -1,3 +1,4 @@
+/*jshint moz:true */
 /* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* vim:set ts=2 sw=2 sts=2 et: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
@@ -80,7 +81,7 @@ this.HttpError = function HttpError(code, description)
 {
     this.code = code;
     this.description = description;
-}
+};
 HttpError.prototype =
 {
     toString: function()
@@ -334,7 +335,7 @@ function printObj(o, showMembers)
   s +=    "o = {\n";
   for (var i in o)
   {
-    if (typeof(i) != "string" ||
+    if (typeof(i) !== "string" ||
         (showMembers || (i.length > 0 && i[0] !== "_")))
     {
       s+= "      " + i + ": " + o[i] + ",\n";
@@ -496,7 +497,7 @@ nsHttpServer.prototype =
   //
   start: function(port)
   {
-    this._start(port, "localhost")
+    this._start(port, "localhost");
   },
 
   _start: function(port, host)
@@ -522,7 +523,7 @@ nsHttpServer.prototype =
     try
     {
       var loopback = true;
-      if (this._host != "127.0.0.1" && this._host != "localhost") {
+      if (this._host !== "127.0.0.1" && this._host !== "localhost") {
         var loopback = false;
       }
 
@@ -552,9 +553,7 @@ nsHttpServer.prototype =
     if (!this._socket)
       throw Cr.NS_ERROR_UNEXPECTED;
 
-    this._stopCallback = typeof callback === "function"
-                       ? callback
-                       : function() { callback.onStopped(); };
+    this._stopCallback = typeof callback === "function" ? callback : function() { callback.onStopped(); };
 
     dumpn(">>> stopping listening on port " + this._socket.port);
     this._socket.close();
@@ -854,7 +853,7 @@ function ServerIdentity()
   this._primaryScheme = "http";
 
   /** The hostname of the primary location. */
-  this._primaryHost = "127.0.0.1"
+  this._primaryHost = "127.0.0.1";
 
   /** The port number of the primary location. */
   this._primaryPort = -1;
@@ -888,8 +887,9 @@ ServerIdentity.prototype =
   //
   get primaryScheme()
   {
-    if (this._primaryPort === -1)
+    if (this._primaryPort === -1) {
       throw Cr.NS_ERROR_NOT_INITIALIZED;
+    }
     return this._primaryScheme;
   },
 
@@ -976,9 +976,9 @@ ServerIdentity.prototype =
     this._validate("http", host, port);
 
     var entry = this._locations["x" + host];
-    if (!entry)
+    if (!entry) {
       return "";
-
+    }
     return entry[port] || "";
   },
 
@@ -1020,15 +1020,17 @@ ServerIdentity.prototype =
   _initialize: function(port, host, addSecondaryDefault)
   {
     this._host = host;
-    if (this._primaryPort !== -1)
+    if (this._primaryPort !== -1) {
       this.add("http", host, port);
-    else
+    } else {
       this.setPrimary("http", "localhost", port);
+    }
     this._defaultPort = port;
 
     // Only add this if we're being called at server startup
-    if (addSecondaryDefault && host != "127.0.0.1")
+    if (addSecondaryDefault && host !== "127.0.0.1") {
       this.add("http", "127.0.0.1", port);
+    }
   },
 
   /**
@@ -1298,9 +1300,9 @@ RequestReader.prototype =
     // Handle cases where we get more data after a request error has been
     // discovered but *before* we can close the connection.
     var data = this._data;
-    if (!data)
+    if (!data){
       return;
-
+    }
     try
     {
       data.appendBytes(readBytes(input, input.available()));
@@ -1330,8 +1332,9 @@ RequestReader.prototype =
         break;
 
       case READER_IN_REQUEST_LINE:
-        if (!this._processRequestLine())
+        if (!this._processRequestLine()) {
           break;
+        }
         /* fall through */
 
       case READER_IN_HEADERS:
@@ -1887,8 +1890,9 @@ function findCRLF(array, start)
 {
   for (var i = array.indexOf(CR, start); i >= 0; i = array.indexOf(CR, i + 1))
   {
-    if (array[i + 1] == LF)
+    if (array[i + 1] === LF) {
       return i;
+    }
   }
   return -1;
 }
@@ -2109,15 +2113,16 @@ function fileSort(a, b)
  */
 function toInternalPath(path, encoded)
 {
-  if (encoded)
+  if (encoded) {
     path = decodeURI(path);
-
+  }
   var comps = path.split("/");
   for (var i = 0, sz = comps.length; i < sz; i++)
   {
     var comp = comps[i];
-    if (comp.charAt(comp.length - 1) == HIDDEN_CHAR)
+    if (comp.charAt(comp.length - 1) === HIDDEN_CHAR) {
       comps[i] = comp + HIDDEN_CHAR;
+    }
   }
   return comps.join("/");
 }
@@ -2161,14 +2166,14 @@ function maybeAddHeaders(file, metadata, response)
     var line = {value: ""};
     var more = lis.readLine(line);
 
-    if (!more && line.value == "")
+    if (!more && line.value === "") {
       return;
-
+    }
 
     // request line
 
     var status = line.value;
-    if (status.indexOf("HTTP ") == 0)
+    if (status.indexOf("HTTP ") === 0)
     {
       status = status.substring(5);
       var space = status.indexOf(" ");
@@ -2359,9 +2364,9 @@ ServerHandler.prototype =
           dumpn("*** unexpected error: e == " + e);
           throw HTTP_500;
         }
-        if (e.code !== 404)
+        if (e.code !== 404) {
           throw e;
-
+        }
         dumpn("*** default: " + (path in this._defaultPaths));
 
         response = new Response(connection);
@@ -2390,8 +2395,9 @@ ServerHandler.prototype =
         dumpn("*** errorCode == " + errorCode);
 
         response = new Response(connection);
-        if (e.customErrorHandling)
+        if (e.customErrorHandling) {
           e.customErrorHandling(response);
+        }
         this._handleError(errorCode, request, response);
         return;
       }
@@ -2442,9 +2448,9 @@ ServerHandler.prototype =
   registerPathHandler: function(path, handler)
   {
     // XXX true path validation!
-    if (path.charAt(0) != "/")
+    if (path.charAt(0) !== "/") {
       throw Cr.NS_ERROR_INVALID_ARG;
-
+    }
     this._handlerToField(handler, this._overridePaths, path);
   },
 
@@ -2454,9 +2460,9 @@ ServerHandler.prototype =
   registerPrefixHandler: function(path, handler)
   {
     // XXX true path validation!
-    if (path.charAt(0) != "/" || path.charAt(path.length - 1) != "/")
+    if (path.charAt(0) !== "/" || path.charAt(path.length - 1) !== "/") {
       throw Cr.NS_ERROR_INVALID_ARG;
-
+    }
     this._handlerToField(handler, this._overridePrefixes, path);
   },
 
@@ -2994,8 +3000,9 @@ ServerHandler.prototype =
       if (dot > 0)
       {
         var ext = name.slice(dot + 1);
-        if (ext in this._mimeMappings)
+        if (ext in this._mimeMappings) {
           return this._mimeMappings[ext];
+        }
       }
       return Cc["@mozilla.org/uriloader/external-helper-app-service;1"]
                .getService(Ci.nsIMIMEService)
@@ -3157,10 +3164,11 @@ ServerHandler.prototype =
       // actually handle the error
       try
       {
-        if (errorCode in this._overrideErrors)
+        if (errorCode in this._overrideErrors) {
           this._overrideErrors[errorCode](metadata, response);
-        else
+        } else {
           this._defaultErrors[errorCode](metadata, response);
+        }
       }
       catch (e)
       {
@@ -3171,9 +3179,9 @@ ServerHandler.prototype =
         }
 
         // don't retry the handler that threw
-        if (errorX00 == errorCode)
+        if (errorX00 === errorCode) {
           throw HTTP_500;
-
+        }
         dumpn("*** error in handling for error code " + errorCode + ", " +
               "falling back to " + errorX00 + "...");
         response = new Response(response._connection);
@@ -3365,9 +3373,9 @@ ServerHandler.prototype =
       body += "Request (semantically equivalent, slightly reformatted):\n\n";
       body += metadata.method + " " + metadata.path;
 
-      if (metadata.queryString)
+      if (metadata.queryString) {
         body +=  "?" + metadata.queryString;
-
+      }
       body += " HTTP/" + metadata.httpVersion + "\r\n";
 
       var headEnum = metadata.headers;
@@ -3631,12 +3639,14 @@ Response.prototype =
     //
     // XXX this ends up disallowing octets which aren't Unicode, I think -- not
     //     much to do if description is IDL'd as string
-    if (!description)
+    if (!description) {
       description = "";
-    for (var i = 0; i < description.length; i++)
-      if (isCTL(description.charCodeAt(i)) && description.charAt(i) != "\t")
+    }
+    for (var i = 0; i < description.length; i++) {
+      if (isCTL(description.charCodeAt(i)) && description.charAt(i) != "\t") {
         throw Cr.NS_ERROR_INVALID_ARG;
-
+      }
+    }
     // set the values only after validation to preserve atomicity
     this._httpDescription = description;
     this._httpCode = code;
@@ -3648,8 +3658,9 @@ Response.prototype =
   //
   setHeader: function(name, value, merge)
   {
-    if (!this._headers || this._finished || this._powerSeized)
+    if (!this._headers || this._finished || this._powerSeized) {
       throw Cr.NS_ERROR_NOT_AVAILABLE;
+    }
     this._ensureAlive();
 
     this._headers.setHeader(name, value, merge);
@@ -4104,18 +4115,18 @@ Response.prototype =
           }
           else
           {
-            if (!Components.isSuccessCode(statusCode))
+            if (!Components.isSuccessCode(statusCode)) {
               dumpn("*** WARNING: non-success statusCode in onStopRequest");
-
+            }
             response.end();
           }
         },
 
         QueryInterface: function(aIID)
         {
-          if (aIID.equals(Ci.nsIRequestObserver) || aIID.equals(Ci.nsISupports))
+          if (aIID.equals(Ci.nsIRequestObserver) || aIID.equals(Ci.nsISupports)) {
             return this;
-
+          }
           throw Cr.NS_ERROR_NO_INTERFACE;
         }
       };
@@ -4389,9 +4400,9 @@ WriteThroughCopier.prototype =
    */
   onOutputStreamReady: function(output)
   {
-    if (this._sink === null)
+    if (this._sink === null) {
       return;
-
+    }
     dumpn("*** onOutputStreamReady");
 
     var pendingData = this._pendingData;
@@ -4436,11 +4447,11 @@ WriteThroughCopier.prototype =
       //     is unusably broken for asynchronous output streams; see bug 532834
       //     for details.
       var bytesWritten = output.write(quantum, quantum.length);
-      if (bytesWritten === quantum.length)
+      if (bytesWritten === quantum.length) {
         pendingData.shift();
-      else
+      } else {
         pendingData[0] = quantum.substring(bytesWritten);
-
+      }
       dumpn("*** wrote " + bytesWritten + " bytes of data");
     }
     catch (e)
@@ -4455,11 +4466,11 @@ WriteThroughCopier.prototype =
         return;
       }
 
-      if (streamClosed(e))
+      if (streamClosed(e)) {
         dumpn("!!! output stream prematurely closed, signaling error...");
-      else
+      } else {
         dumpn("!!! unknown error: " + e + ", quantum=" + quantum);
-
+      }
       this._doneWritingToSink(Cr.NS_ERROR_UNEXPECTED);
       return;
     }
@@ -4832,9 +4843,9 @@ function htmlEscape(str)
 function nsHttpVersion(versionString)
 {
   var matches = /^(\d+)\.(\d+)$/.exec(versionString);
-  if (!matches)
+  if (!matches) {
     throw "Not a valid HTTP version!";
-
+  }
   /** The major version number of this, as a number. */
   this.major = parseInt(matches[1], 10);
 
@@ -4843,7 +4854,9 @@ function nsHttpVersion(versionString)
 
   if (isNaN(this.major) || isNaN(this.minor) ||
       this.major < 0    || this.minor < 0)
+  {
     throw "Not a valid HTTP version!";
+  }
 }
 nsHttpVersion.prototype =
 {
@@ -5051,17 +5064,18 @@ nsSimpleEnumerator.prototype =
   },
   getNext: function()
   {
-    if (!this.hasMoreElements())
+    if (!this.hasMoreElements()) {
       throw Cr.NS_ERROR_NOT_AVAILABLE;
-
+    }
     return this._items[this._nextIndex++];
   },
   QueryInterface: function(aIID)
   {
     if (Ci.nsISimpleEnumerator.equals(aIID) ||
         Ci.nsISupports.equals(aIID))
+    {
       return this;
-
+    }
     throw Cr.NS_ERROR_NO_INTERFACE;
   }
 };
