@@ -1,5 +1,6 @@
 [![Codacy Badge](https://www.codacy.com/project/badge/49fc38256ac94d0ebb2385ec86a1dbf9)](https://www.codacy.com/app/letsgetrandy/specter)
 [![Code Climate](https://codeclimate.com/repos/555a12c06956801a17000b84/badges/03cde523f93011edd028/gpa.svg)](https://codeclimate.com/repos/555a12c06956801a17000b84/feed)
+[![bitHound Score](https://www.bithound.io/github/letsgetrandy/specter/badges/score.svg)](https://www.bithound.io/github/letsgetrandy/specter)
 [![Stories in Ready](https://badge.waffle.io/letsgetrandy/specter.png?label=ready)](https://waffle.io/letsgetrandy/specter)
 
 Specter
