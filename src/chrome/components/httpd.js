@@ -351,9 +351,9 @@ function printObj(o, showMembers)
  */
 function nsHttpServer()
 {
-  if (!gThreadManager)
+  if (!gThreadManager) {
     gThreadManager = Cc["@mozilla.org/thread-manager;1"].getService();
-
+  }
   /** The port on which this server listens. */
   this._port = undefined;
 
@@ -1732,7 +1732,7 @@ RequestReader.prototype =
         throw HTTP_400;
       }
 
-      if (!serverIdentity.has(scheme, host, port) || fullPath.charAt(0) != "/")
+      if (!serverIdentity.has(scheme, host, port) || fullPath.charAt(0) !== "/")
       {
         dumpn("*** serverIdentity unknown or path does not start with '/'");
         throw HTTP_400;
@@ -2145,7 +2145,7 @@ const PERMS_READONLY = (4 << 6) | (4 << 3) | 4;
 function maybeAddHeaders(file, metadata, response)
 {
   var name = file.leafName;
-  if (name.charAt(name.length - 1) == HIDDEN_CHAR) {
+  if (name.charAt(name.length - 1) === HIDDEN_CHAR) {
     name = name.substring(0, name.length - 1);
   }
   var headerFile = file.parent;
@@ -2479,9 +2479,9 @@ ServerHandler.prototype =
 
     // the path-to-directory mapping code requires that the first character not
     // be "/", or it will go into an infinite loop
-    if (key.charAt(0) == "/")
+    if (key.charAt(0) == "/") {
       throw Cr.NS_ERROR_INVALID_ARG;
-
+    }
     key = toInternalPath(key, false);
 
     if (directory)
@@ -2513,11 +2513,11 @@ ServerHandler.prototype =
   //
   setIndexHandler: function(handler)
   {
-    if (!handler)
+    if (!handler) {
       handler = defaultIndexHandler;
-    else if (typeof(handler) != "function")
+    } else if (typeof(handler) != "function") {
       handler = createHandlerFunc(handler);
-
+    }
     this._indexHandler = handler;
   },
 
@@ -2547,12 +2547,13 @@ ServerHandler.prototype =
   _handlerToField: function(handler, dict, key)
   {
     // for convenience, handler can be a function if this is run from xpcshell
-    if (typeof(handler) == "function")
+    if (typeof(handler) == "function") {
       dict[key] = handler;
-    else if (handler)
+    } else if (handler) {
       dict[key] = createHandlerFunc(handler);
-    else
+    } else {
       delete dict[key];
+    }
   },
 
   /**
@@ -2596,9 +2597,9 @@ ServerHandler.prototype =
     }
 
     // alternately, the file might not exist
-    if (!file.exists())
+    if (!file.exists()) {
       throw HTTP_404;
-
+    }
     var start, end;
     if (metadata._httpVersion.atLeast(nsHttpVersion.HTTP_1_1) &&
         metadata.hasHeader("Range") &&
@@ -2611,12 +2612,12 @@ ServerHandler.prototype =
         throw HTTP_400;
       }
 
-      if (rangeMatch[1] !== undefined)
+      if (rangeMatch[1] !== undefined) {
         start = parseInt(rangeMatch[1], 10);
-
-      if (rangeMatch[2] !== undefined)
+      }
+      if (rangeMatch[2] !== undefined) {
         end = parseInt(rangeMatch[2], 10);
-
+      }
       if (start === undefined && end === undefined)
       {
         dumpn("*** More Range header bogosity: '" + metadata.getHeader("Range") + "'");
@@ -2632,9 +2633,9 @@ ServerHandler.prototype =
       }
 
       // start and end are inclusive
-      if (end === undefined || end >= file.fileSize)
+      if (end === undefined || end >= file.fileSize) {
         end = file.fileSize - 1;
-
+      }
       if (start !== undefined && start >= file.fileSize) {
         var HTTP_416 = new HttpError(416, "Requested Range Not Satisfiable");
         HTTP_416.customErrorHandling = function(errorResponse)
@@ -2967,16 +2968,16 @@ ServerHandler.prototype =
    */
   _setObjectState: function(k, v)
   {
-    if (typeof k !== "string")
+    if (typeof k !== "string") {
       throw new Error("non-string key passed");
-    if (typeof v !== "object")
+    }
+    if (typeof v !== "object") {
       throw new Error("non-object value passed");
-    if (v && !("QueryInterface" in v))
-    {
+    }
+    if (v && !("QueryInterface" in v)) {
       throw new Error("must pass an nsISupports; use wrappedJSObject to ease " +
                       "pain when using the server from JS");
     }
-
     this._objectState[k] = v;
   },
 
@@ -3416,10 +3417,11 @@ FileMap.prototype =
    */
   put: function(key, value)
   {
-    if (value)
+    if (value) {
       this._map[key] = value.clone();
-    else
+    } else {
       delete this._map[key];
+    }
   },
 
   /**
@@ -3622,12 +3624,13 @@ Response.prototype =
     {
       var httpVer;
       // avoid version construction for the most common cases
-      if (!httpVersion || httpVersion == "1.1")
+      if (!httpVersion || httpVersion === "1.1") {
         httpVer = nsHttpVersion.HTTP_1_1;
-      else if (httpVersion == "1.0")
+      } else if (httpVersion == "1.0") {
         httpVer = nsHttpVersion.HTTP_1_0;
-      else
+      } else {
         httpVer = new nsHttpVersion(httpVersion);
+      }
     }
     catch (e)
     {
@@ -3695,8 +3698,9 @@ Response.prototype =
      * until finish() is called.  Since that delay is easily avoided by simply
      * getting bodyOutputStream or calling write(""), we don't worry about it.
      */
-    if (this._bodyOutputStream && !this._asyncCopier)
+    if (this._bodyOutputStream && !this._asyncCopier) {
       this._startAsyncProcessor();
+    }
   },
 
   //
@@ -3704,12 +3708,15 @@ Response.prototype =
   //
   seizePower: function()
   {
-    if (this._processAsync)
+    if (this._processAsync) {
       throw Cr.NS_ERROR_NOT_AVAILABLE;
-    if (this._finished)
+    }
+    if (this._finished) {
       throw Cr.NS_ERROR_UNEXPECTED;
-    if (this._powerSeized)
+    }
+    if (this._powerSeized) {
       return;
+    }
     this._ensureAlive();
 
     dumpn("*** forcefully seizing power over connection " +
@@ -4578,11 +4585,11 @@ WriteThroughCopier.prototype =
     dumpn("*** _doneReadingSource(0x" + e.toString(16) + ")");
 
     this._finishSource(e);
-    if (this._pendingData.length === 0)
+    if (this._pendingData.length === 0) {
       this._sink = null;
-    else
+    } else {
       NS_ASSERT(this._sink !== null, "null output?");
-
+    }
     // If we've written out all data read up to this point, then it's time to
     // signal completion.
     if (this._sink === null)

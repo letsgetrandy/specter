@@ -16,8 +16,9 @@ window.addEventListener("load", function(event) {
 
 var closing = false;
 window.addEventListener("DOMWindowClose", function(event) {
-    if (closing)
+    if (closing) {
         return;
+    }
     closing = true;
     //browser.close();
 }, true);
